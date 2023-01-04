@@ -1,0 +1,8 @@
+{
+    "var_name": "volume_clmn",
+    "standard_name": "Volume",
+    "column_type": "Float",
+    "conversion_to_be_applied": true,
+    "nomenclature_to_be_applied": false,
+    "space_cleaning_to_be_applied": false
+}

@@ -1,0 +1,8 @@
+{
+    "var_name": "uom_clmn",
+    "standard_name": "UoM",
+    "column_type": "String",
+    "conversion_to_be_applied": false,
+    "nomenclature_to_be_applied": true,
+    "space_cleaning_to_be_applied": false
+}

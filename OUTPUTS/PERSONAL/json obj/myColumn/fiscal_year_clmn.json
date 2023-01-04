@@ -1,0 +1,8 @@
+{
+    "var_name": "fiscal_year_clmn",
+    "standard_name": "Fiscal year",
+    "column_type": "Integer",
+    "conversion_to_be_applied": false,
+    "nomenclature_to_be_applied": false,
+    "space_cleaning_to_be_applied": false
+}
