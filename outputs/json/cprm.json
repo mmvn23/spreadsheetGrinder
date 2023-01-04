@@ -1,0 +1,22 @@
+{
+    "name": "cprm",
+    "filepath": "C:/Users/emily/PycharmProjects/PersonalPNL/inputs/Data samples.xlsx",
+    "sheet": "CPRM",
+    "timestamp": "10/10/2022",
+    "df setup clmn filepath": "C:/Users/emily/PycharmProjects/PersonalPNL/outputs/json/df_stp_clmn cprm.csv",
+    "format": "xlsx",
+    "source dict": {
+        "name": "CPRM",
+        "timestamp": "09/01/2022"
+    },
+    "to be transposed": "True",
+    "use cols": "A:CZ",
+    "nrows": 15,
+    "date parser": "%b %y",
+    "skip row": {
+        "bf header": 0,
+        "af header": 15
+    },
+    "encoding": "ascii",
+    "decimal": "."
+}

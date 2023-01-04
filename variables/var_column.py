@@ -1,0 +1,30 @@
+is_forecast = 'is_forecast'
+
+new = 'new'
+original = 'original'
+
+term_before_nomenclature = 'term_before_nomenclature'
+term_after_nomenclature = 'term_after_nomenclature'
+error = 'error'
+
+volume = 'volume'
+volume_list = ['volume_a', 'volume_b', 'volume_c', 'volume_d', 'volume_e']
+date = 'date'
+month_day_as_date = 'month_day_as_date'
+period = 'period'
+fiscal_year = 'fiscal_year'
+multiplier = 'multiplier'
+part_number_code = 'part_number_code'
+strategy = 'strategy'
+si_uom = 'si_uom'
+uom = 'uom'
+
+clmn_var_name = 'clmn_var_name'
+clmn_rep_name = 'clmn_rep_name'
+my_type = 'my_type'
+uom_conversion_to_be_applied = 'uom_conversion_to_be_applied'
+nomenclature_to_be_applied = 'nomenclature_to_be_applied'
+string_cleaning_to_be_applied = 'string_cleaning_to_be_applied'
+source_name = 'source_name'
+source_last_update = 'source_last_update'
+timestamp = 'timestamp'

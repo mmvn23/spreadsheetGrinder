@@ -1,0 +1,6 @@
+volume_consolidation = 'Volume consolidation'
+date_consolidation = 'Date consolidation'
+nomenclature = 'Nomenclature on '
+duplicated_index = 'Duplicated index'
+type_conversion = 'Type conversion'
+uom_conversion = 'UoM conversion'
