@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/spreadsheetGrinder.iml" filepath="$PROJECT_DIR$/.idea/spreadsheetGrinder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/personalPnL.iml" filepath="$PROJECT_DIR$/.idea/personalPnL.iml" />
     </modules>
   </component>
 </project>

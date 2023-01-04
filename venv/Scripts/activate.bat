@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\NettoMan1\OneDrive - Diageo\Category files\99. Python\spreadsheetGrinder\venv
+set VIRTUAL_ENV=C:\Users\mmartins\OneDrive - Beam Suntory Inc\999. Python\personalPnL\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
