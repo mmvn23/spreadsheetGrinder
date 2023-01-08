@@ -118,6 +118,7 @@ def pre_load_objects():
     return
 
 
-pre_load_objects()
+if __name__ == "__main__":
+    pre_load_objects()
 
 

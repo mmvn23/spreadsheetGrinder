@@ -18,7 +18,7 @@ def load_xlsx(filepath, sheet_name, header, new_column_list, key_clmn_list, inde
 
 
 def load_csv(filepath):
-    any_dataframe = pd.read_csv(filepath, encoding=stp.encoding_to_save)
+    any_dataframe = pd.read_csv(filepath, header=0, encoding=stp.encoding_to_save)
     return any_dataframe
 
 

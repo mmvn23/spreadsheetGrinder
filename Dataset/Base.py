@@ -166,8 +166,29 @@ class BaseDataset:
         self.reset_index(new_index_list=self.get_var_index_list())
         return
 
+    def concat_base_dataset(self, any_basedataset):
+        self.concat_dataframe(any_dataframe=any_basedataset.dataframe)
+        return
+
     def concat_dataframe(self, any_dataframe):
         self.dataframe = pd.concat([self.dataframe, any_dataframe])
+        return
+
+    def trim_date(self, initial_date, end_date, date_clmn, reset_index=False):
+        if reset_index:
+            self.remove_index()
+
+        cond_initial = self.dataframe[date_clmn] >= initial_date
+        cond_end = self.dataframe[date_clmn] <= end_date
+        cond = cond_initial & cond_end
+
+        self.dataframe = self.dataframe.loc[cond]
+        if reset_index:
+            self.apply_standard_index()
+        return
+
+    def print(self):
+        print(self.dataframe)
         return
 
 # ARITHMETIC
@@ -243,14 +264,20 @@ class BaseDataset:
             self.apply_standard_index()
         return
 
+    def get_row_number(self):
+        return len(self.dataframe.index)
 
-def get_dataframe_filepath(name, is_for_setup_clmn=True, is_for_error=False):
+
+def get_dataframe_filepath(name, is_for_setup_clmn=True, is_for_error=False, is_for_archive=False):
     if is_for_setup_clmn:
         any_filepath = ut.get_filepath(root=stp.root_folder, folder=stp.json_folder,
                                        file='df_stp_clmn ' + name, any_format=stp.csv)
     elif is_for_error:
         any_filepath = ut.get_filepath(root=stp.root_folder, folder=stp.json_folder,
                                        file='df_error ' + name, any_format=stp.csv)
+    elif is_for_archive:
+        any_filepath = ut.get_filepath(root=stp.root_folder, folder=stp.archive_folder,
+                                       file=name, any_format=stp.csv)
     else:
         any_filepath = ut.get_filepath(root=stp.root_folder, folder=stp.dataframe_folder,
                                        file=name, any_format=stp.csv)

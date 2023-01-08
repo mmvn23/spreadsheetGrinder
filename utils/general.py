@@ -102,12 +102,14 @@ def assign_type(input_value, desired_type, date_parser='%m/%d/%Y'):
     return any_value
 
 
+# def parse_date_as_timestamp(original_date, date_parser_list):
 def parse_date_as_timestamp(original_date, date_parser_list):
     successful_parsing = False
 
     for any_date_parser in date_parser_list:
         any_date_parsed, successful_parsing_to_append = parse_date_as_timestamp_per_data_parser(original_date,
                                                                                                 any_date_parser)
+
         if successful_parsing_to_append:
             any_date = any_date_parsed
         successful_parsing = successful_parsing | successful_parsing_to_append
@@ -125,6 +127,7 @@ def parse_date_as_timestamp_per_data_parser(original_date, date_parser):
     try:
         if type(original_date) == str:
             any_date = datetime.datetime.strptime(original_date, date_parser)
+
         else:
             any_date = original_date
         any_date = pd.Timestamp(year=any_date.year, month=any_date.month,

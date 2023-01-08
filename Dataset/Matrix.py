@@ -155,6 +155,7 @@ class DataMatrix(BaseDataset):
         self.consolidate_date()
         # clean string for material codes
         self.apply_nomenclature(any_mtx_nomenclature)
+
         self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number)
         self.apply_standard_index()
         self.add_timestamp()
@@ -243,8 +244,8 @@ class DataMatrix(BaseDataset):
         elif desired_type == tp.my_date:
             self.dataframe[any_standard_clmn] = self.dataframe.apply(lambda row:
                                                                      ut.parse_date_as_timestamp(row[any_standard_clmn],
-                                                                                                variables.date_treatment
-                                                                                                .parser),
+                                                                                                [variables.date_treatment
+                                                                                                .parser]),
                                                                      axis=1)
         else:
             print(any_standard_clmn, desired_type)
@@ -287,15 +288,17 @@ class DataMatrix(BaseDataset):
 
         if clmn.date in var_column_list:
             df_date, self.dataframe = self.filter_nan_and_update_error(any_column=clmn.date)
-            df_date[clmn.date] = df_date.apply(lambda row: ut.get_date_from_month_and_period(row[clmn.month_day_as_date],
-                                                                                             row[clmn.period],
-                                                                                             row[clmn.fiscal_year]), axis=1)
 
-            self.dataframe = pd.concat([self.dataframe, df_date])
-            df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=clmn.date,
+            if len(df_date) > 0:
+                df_date[clmn.date] = df_date.apply(lambda row: ut.get_date_from_month_and_period(row[clmn.month_day_as_date],
+                                                                                                 row[clmn.period],
+                                                                                                 row[clmn.fiscal_year]), axis=1)
+
+                self.dataframe = pd.concat([self.dataframe, df_date])
+                df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=clmn.date,
                                                                                   error_message=
                                                                                   err_msg.date_consolidation)
-            self.df_error = pd.concat([self.df_error, df_error_to_concat])
+                self.df_error = pd.concat([self.df_error, df_error_to_concat])
 
         return
 
@@ -343,11 +346,20 @@ class DataMatrix(BaseDataset):
         return any_datamatrix
 
     @staticmethod
-    def load_old_object(name):
+    def load_old_object(name, is_for_archive=False):
         any_datamatrix = DataMatrix.load_from_json(name)
-        filepath = get_dataframe_filepath(any_datamatrix.name, is_for_setup_clmn=False)
+        filepath = get_dataframe_filepath(any_datamatrix.name, is_for_setup_clmn=False, is_for_archive=is_for_archive)
         any_datamatrix.dataframe = utils.setup.load_csv(filepath)
+
         any_datamatrix.apply_standard_index()
         any_datamatrix.assure_column_integrity()
         any_datamatrix.apply_types()
         return any_datamatrix
+
+    @staticmethod
+    def load_old_object_list(name_list):
+        any_datamatrix_list = []
+        for any_name in name_list:
+            any_datamatrix = copy.deepcopy(DataMatrix.load_old_object(any_name))
+            any_datamatrix_list.append(any_datamatrix)
+        return any_datamatrix_list

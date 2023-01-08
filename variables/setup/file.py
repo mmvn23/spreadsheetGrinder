@@ -9,6 +9,7 @@ column_sheet_name = 'column'
 root_folder = 'C:/Users/NettoMan1/OneDrive - Diageo/Category files/99. Python/spreadsheetGrinder'
 json_folder = 'outputs/DIAGEO/json'
 dataframe_folder = 'outputs/DIAGEO/dataframe'
+archive_folder = 'outputs/DIAGEO/dataframe/archive'
 csv = 'csv'
 json = 'json'
 json_indent = 4
