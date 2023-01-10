@@ -26,7 +26,8 @@ def load_uom_conversion():
     mtx_uom_conversion.load_dataframe(any_raw_dataset_name_list=['uom_length', 'uom_area', 'uom_volume',
                                                                  'uom_fuel_efficiency', 'uom_mass', 'uom_density',
                                                                  'uom_mass_concentration', 'uom_energy',
-                                                                 'uom_material_specific_grain'],
+                                                                 'uom_material_specific_grain',
+                                                                 'uom_material_specific_container'],
                                       any_mtx_nomenclature=mtx_nomenclature)
     mtx_uom_conversion = invert_uom(mtx_uom_conversion)
     mtx_uom_conversion.remove_duplicated_index()

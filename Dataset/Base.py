@@ -112,7 +112,6 @@ class BaseDataset:
                                                                               error_message=err_msg.uom_conversion)
         self.concat_dataframe(df_error_to_concat)
 
-
         self.multiply_column_by_another(multiplier_clmn=any_clmn, multiplicand_clmn=temp_multiplier_numerator,
                                         product_clmn=any_clmn)
         self.divide_column_by_another(dividend_clmn=any_clmn, divisor_clmn=temp_multiplier_denominator,
@@ -191,6 +190,13 @@ class BaseDataset:
         print(self.dataframe)
         return
 
+    def filter_based_on_column(self, any_column, value_list, keep_value_in=True):
+        cond = self.dataframe[any_column].isin(value_list)
+
+        self.dataframe = self.dataframe[cond]
+
+        return
+
 # ARITHMETIC
     def sum_columns(self, result_clmn, summand_clmn_list, reset_index=False):
         if reset_index:
@@ -226,12 +232,14 @@ class BaseDataset:
         return new_column_list
 
     def filter_nan_and_update_error(self, any_column, error_message=''):
-        cond_nan = pd.isnull(self.dataframe[any_column])
+        self.dataframe[any_column] = self.dataframe[any_column].replace(['NaN', 'None', '', '<NA>'], float('nan'))
+
+        cond_nan_pd = pd.isnull(self.dataframe[any_column])
+        cond_nan = cond_nan_pd
         # cond_nan_np = np.isnan(self.dataframe[any_column])
         # cond_nan = cond_nan_pd | cond_nan_np
 
         df_error = self.dataframe[cond_nan]
-        # df_error.reset_index(inplace=True)
 
         if len(error_message) > 1:
             df_error[variables.setup.column.error_message] = error_message

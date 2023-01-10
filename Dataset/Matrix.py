@@ -155,8 +155,11 @@ class DataMatrix(BaseDataset):
         self.consolidate_date()
         # clean string for material codes
         self.apply_nomenclature(any_mtx_nomenclature)
-
         self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number)
+
+        print('MTX 160')
+        self.print()
+
         self.apply_standard_index()
         self.add_timestamp()
         self.assure_column_integrity()
@@ -177,6 +180,15 @@ class DataMatrix(BaseDataset):
         df_error.reset_index(inplace=True)
         self.df_error = pd.concat([self.df_error, df_error])
 
+        return
+
+    def concat_datamatrix(self, any_datamatrix):
+        self.concat_dataframe(any_datamatrix.dataframe)
+        self.concat_error_dataframe(any_datamatrix.df_error)
+        return
+
+    def concat_error_dataframe(self, any_df_error):
+        self.df_error = pd.concat([self.df_error, any_df_error])
         return
 
     def apply_uom_conversion_to_si(self, any_mtx_uom_conversion, any_mtx_part_number):
