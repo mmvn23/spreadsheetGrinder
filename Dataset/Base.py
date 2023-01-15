@@ -8,6 +8,7 @@ import variables.setup.file as stp
 import variables.var_column as clmn
 import variables.dict as dct
 import variables.error_message as err_msg
+import variables.general as gen
 
 
 class BaseDataset:
@@ -106,16 +107,22 @@ class BaseDataset:
         df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=temp_multiplier_numerator,
                                                                               error_message=err_msg.uom_conversion)
 
-        self.concat_dataframe(df_error_to_concat)
+        self.df_error = pd.concat([self.df_error, df_error_to_concat])
 
         df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=temp_multiplier_denominator,
                                                                               error_message=err_msg.uom_conversion)
-        self.concat_dataframe(df_error_to_concat)
+        self.df_error = pd.concat([self.df_error, df_error_to_concat])
 
         self.multiply_column_by_another(multiplier_clmn=any_clmn, multiplicand_clmn=temp_multiplier_numerator,
                                         product_clmn=any_clmn)
         self.divide_column_by_another(dividend_clmn=any_clmn, divisor_clmn=temp_multiplier_denominator,
                                       result_clmn=any_clmn)
+
+        df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=any_clmn,
+                                                                              error_message=err_msg.uom_conversion)
+
+        self.df_error = pd.concat([self.df_error, df_error_to_concat])
+
         return
 
     def add_uom_multiplier(self, any_mtx_conversion, multiplier_clmn, original_clmn, new_clmn):
@@ -232,19 +239,22 @@ class BaseDataset:
         return new_column_list
 
     def filter_nan_and_update_error(self, any_column, error_message=''):
-        self.dataframe[any_column] = self.dataframe[any_column].replace(['NaN', 'None', '', '<NA>'], float('nan'))
+        # refactor later
+        # self.dataframe['temp'] = self.dataframe[any_column]
+        # self.dataframe['temp'].fillna(value=gen.void, inplace=True)
 
         cond_nan_pd = pd.isnull(self.dataframe[any_column])
         cond_nan = cond_nan_pd
-        # cond_nan_np = np.isnan(self.dataframe[any_column])
-        # cond_nan = cond_nan_pd | cond_nan_np
+        # cond_float_nan = self.dataframe['temp'].isin(['<NA>', 'NaN', 'None', '', 'nan', gen.void])
+        # cond_nan = cond_nan_pd | cond_float_nan
 
-        df_error = self.dataframe[cond_nan]
+        df_error = self.dataframe.loc[cond_nan]
 
         if len(error_message) > 1:
             df_error[variables.setup.column.error_message] = error_message
 
-        dataframe = self.dataframe[~cond_nan]
+        dataframe = self.dataframe.loc[~cond_nan]
+        # self.drop_column_list(column_list=['temp'], keep_column_list=False)
         return df_error, dataframe
 
     def merge_dataframe(self, original_right_dataset, desired_column_list, left_on_list, right_on_list,

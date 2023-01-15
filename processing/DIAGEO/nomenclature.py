@@ -39,3 +39,4 @@ if __name__ == "__main__":
     pd.set_option('display.max_columns', 10)
     pd.set_option('display.max_rows', 500)
     load_nomenclature()
+

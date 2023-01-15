@@ -156,10 +156,6 @@ class DataMatrix(BaseDataset):
         # clean string for material codes
         self.apply_nomenclature(any_mtx_nomenclature)
         self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number)
-
-        print('MTX 160')
-        self.print()
-
         self.apply_standard_index()
         self.add_timestamp()
         self.assure_column_integrity()
@@ -201,9 +197,11 @@ class DataMatrix(BaseDataset):
             self.merge_dataframe(original_right_dataset=any_mtx_part_number, desired_column_list=[clmn.si_uom],
                                  left_on_list=[clmn.part_number_code], right_on_list=[clmn.part_number_code],
                                  reset_left_index=False, reset_right_index=True, drop_right_on_list=False)
+
         if any_mtx_uom_conversion != var_gen.void:
             for any_column in column_list:
                 self.apply_uom_conversion_to_si_to_column(any_mtx_uom_conversion, any_column)
+
         return
 
     def apply_uom_conversion_to_si_to_column(self, any_mtx_uom_conversion, any_column):

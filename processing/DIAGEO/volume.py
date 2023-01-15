@@ -16,7 +16,8 @@ def load_volume(refresh_initial_date, archive_volume_to_be_loaded=False,
     mtx_volume = Matrix.DataMatrix.load_from_json('volume')
     mtx_volume_new = copy.deepcopy(mtx_volume)
 
-    mtx_volume_new.load_dataframe(any_raw_dataset_name_list=['volume_f23_p06'],
+    mtx_volume_new.load_dataframe(any_raw_dataset_name_list=['volume_f20', 'volume_f21', 'volume_f22',  'volume_f23',
+                                                             'volume_f23_p05', 'volume_f23_p06'],
                                   any_mtx_nomenclature=mtx_nomenclature, any_mtx_uom_conversion=mtx_uom_conversion,
                                   any_mtx_part_number=mtx_part_number)
 
