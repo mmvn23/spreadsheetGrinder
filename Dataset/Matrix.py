@@ -1,12 +1,13 @@
 import pandas as pd
-import variables.setup.column
+import variables.setup_column as stp_clmn
 import variables.date_treatment
+import variables.general
 from Dataset.Base import BaseDataset, get_dataframe_filepath
 from Dataset.Raw import RawDataset
 import variables.var_column as clmn
 import utils.general as ut
 import utils.setup
-import variables.setup.file as stp
+import variables.DIAGEO_setup.file as dg_stp
 import variables.format as fmt
 import variables.dict as dct
 import variables.general as var_gen
@@ -43,36 +44,36 @@ class DataMatrix(BaseDataset):
     @staticmethod
     def load_list_of_datasets(df_setup, df_column):
         df_setup.reset_index(inplace=True)
-        df_setup.dropna(subset=[variables.setup.column.dataset_name], inplace=True)
-        dataset_name_list = set(list(df_setup[variables.setup.column.dataset_name]))
+        df_setup.dropna(subset=[variables.setup_column.dataset_name], inplace=True)
+        dataset_name_list = set(list(df_setup[variables.setup_column.dataset_name]))
         any_datamatrix_list = []
 
         for any_dataset_name in dataset_name_list:
             any_datamatrix_to_append = DataMatrix.load_attributes_from_spreadsheet(dataset_name=any_dataset_name,
                                                                                    any_df_setup=df_setup,
                                                                                    setup_clmn_list_for_clmn_info=
-                                                                         [variables.setup.column.dataset_name,
-                                                                          variables.setup.column.row,
-                                                                          variables.setup.column.clmn1,
-                                                                          variables.setup.column.clmn2,
-                                                                          variables.setup.column.clmn3,
-                                                                          variables.setup.column.clmn4,
-                                                                          variables.setup.column.clmn5,
-                                                                          variables.setup.column.clmn6,
-                                                                          variables.setup.column.clmn7,
-                                                                          variables.setup.column.clmn8,
-                                                                          variables.setup.column.clmn9,
-                                                                          variables.setup.column.clmn10,
-                                                                          variables.setup.column.clmn11,
-                                                                          variables.setup.column.clmn12,
-                                                                          variables.setup.column.clmn13,
-                                                                          variables.setup.column.clmn14,
-                                                                          variables.setup.column.clmn15,
-                                                                          variables.setup.column.clmn16,
-                                                                          variables.setup.column.clmn17,
-                                                                          variables.setup.column.clmn18,
-                                                                          variables.setup.column.clmn19,
-                                                                          variables.setup.column.clmn20],
+                                                                         [variables.setup_column.dataset_name,
+                                                                          variables.setup_column.row,
+                                                                          variables.setup_column.clmn1,
+                                                                          variables.setup_column.clmn2,
+                                                                          variables.setup_column.clmn3,
+                                                                          variables.setup_column.clmn4,
+                                                                          variables.setup_column.clmn5,
+                                                                          variables.setup_column.clmn6,
+                                                                          variables.setup_column.clmn7,
+                                                                          variables.setup_column.clmn8,
+                                                                          variables.setup_column.clmn9,
+                                                                          variables.setup_column.clmn10,
+                                                                          variables.setup_column.clmn11,
+                                                                          variables.setup_column.clmn12,
+                                                                          variables.setup_column.clmn13,
+                                                                          variables.setup_column.clmn14,
+                                                                          variables.setup_column.clmn15,
+                                                                          variables.setup_column.clmn16,
+                                                                          variables.setup_column.clmn17,
+                                                                          variables.setup_column.clmn18,
+                                                                          variables.setup_column.clmn19,
+                                                                          variables.setup_column.clmn20],
                                                                                    any_df_column=df_column)
             any_datamatrix_list = any_datamatrix_list + [any_datamatrix_to_append]
 
@@ -81,15 +82,15 @@ class DataMatrix(BaseDataset):
     @staticmethod
     def load_attributes_from_spreadsheet(dataset_name, any_df_setup, setup_clmn_list_for_clmn_info, any_df_column):
         root_folder = ut.get_value_from_dataframe(input_dataframe=any_df_setup,
-                                                  target_column_list=variables.setup.column.root,
-                                                  column_list_to_filter=[variables.setup.column.dataset_name,
-                                                                         variables.setup.column.row],
-                                                  value_list_to_filter=[dataset_name, stp.row_main])
+                                                  target_column_list=variables.setup_column.root,
+                                                  column_list_to_filter=[variables.setup_column.dataset_name,
+                                                                         variables.setup_column.row],
+                                                  value_list_to_filter=[dataset_name, variables.general.row_main])
         folder = ut.get_value_from_dataframe(input_dataframe=any_df_setup,
-                                             target_column_list=variables.setup.column.folder,
-                                             column_list_to_filter=[variables.setup.column.dataset_name,
-                                                                    variables.setup.column.row],
-                                             value_list_to_filter=[dataset_name, stp.row_main])
+                                             target_column_list=variables.setup_column.folder,
+                                             column_list_to_filter=[variables.setup_column.dataset_name,
+                                                                    variables.setup_column.row],
+                                             value_list_to_filter=[dataset_name, variables.general.row_main])
         any_filepath = ut.get_filepath(root=root_folder, folder=folder, file=dataset_name, any_format=fmt.csv)
         df_column_setup = utils.setup.prepare_df_column_setup(dataset_name, any_df_setup,
                                                               setup_clmn_list_for_clmn_info,
@@ -99,59 +100,67 @@ class DataMatrix(BaseDataset):
                                     mytimestamp=ut.get_now_timestamp())
         return any_datamatrix
 
-    def write(self):
-        self.write_as_json()
-        self.write_dataframe_as_csv(save_df_setup_clmn=True)
-        self.write_dataframe_as_csv(save_df_setup_clmn=False)
-        self.write_dataframe_as_csv(save_df_setup_clmn=False, save_df_error=True)
+    def write(self, root_json=dg_stp.root_folder, folder_json=dg_stp.json_folder,
+              folder_dataframe=dg_stp.dataframe_folder):
+        self.write_as_json(root=root_json, folder=folder_json)
+        self.write_dataframe_as_csv(root=root_json, folder=folder_dataframe, save_df_setup_clmn=True)
+        self.write_dataframe_as_csv(root=root_json, folder=folder_json, save_df_setup_clmn=False)
+        self.write_dataframe_as_csv(root=root_json, folder=folder_json, save_df_setup_clmn=False, save_df_error=True)
 
         return
 
-    def write_dataframe_as_csv(self, save_df_setup_clmn=False, save_df_error=False):
+    def write_dataframe_as_csv(self, root, folder, save_df_setup_clmn=False, save_df_error=False):
 
         if save_df_setup_clmn:
             any_dataframe = copy.deepcopy(self.df_setup_for_column)
-            filepath = get_dataframe_filepath(self.name, is_for_setup_clmn=True)
+            filepath = get_dataframe_filepath(self.name, root, folder, is_for_setup_clmn=True)
         elif save_df_error:
             any_dataframe = copy.deepcopy(self.df_error)
-            filepath = get_dataframe_filepath(self.name, is_for_setup_clmn=False, is_for_error=True)
+            filepath = get_dataframe_filepath(self.name, root, folder, is_for_setup_clmn=False, is_for_error=True)
 
         else:
             any_dataframe = copy.deepcopy(self.dataframe)
-            filepath = get_dataframe_filepath(self.name, is_for_setup_clmn=False)
+            filepath = get_dataframe_filepath(self.name, root, folder, is_for_setup_clmn=False)
 
-        any_dataframe.to_csv(filepath, encoding=stp.encoding_to_save, date_format=stp.date_parser_to_save)
+        any_dataframe.to_csv(filepath, encoding=variables.general.encoding_to_save,
+                             date_format=variables.general.date_parser_to_save)
         return
 
-    def write_as_json(self):
-        address = ut.get_filepath(root=stp.root_folder, folder=stp.json_folder, file=self.name, any_format=stp.json)
+    def write_as_json(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
+        address = ut.get_filepath(root=root, folder=folder, file=self.name, any_format=variables.general.json)
         with open(address, "w") as outfile:
-            json.dump(self.convert_to_dict(), outfile, indent=stp.json_indent)
+            json.dump(self.convert_to_dict(root=root, folder=folder), outfile, indent=variables.general.json_indent)
         return
 
-    def convert_to_dict(self):
+    def convert_to_dict(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
         any_dict = {dct.name: self.name,
                     dct.filepath: self.filepath,
-                    dct.my_timestamp: ut.convert_timestamp_to_str(self.mytimestamp, stp.date_parser_to_save),
-                    dct.df_setup_clmn_filepath: get_dataframe_filepath(self.name, is_for_setup_clmn=True),
+                    dct.my_timestamp: ut.convert_timestamp_to_str(self.mytimestamp,
+                                                                  variables.general.date_parser_to_save),
+                    dct.df_setup_clmn_filepath: get_dataframe_filepath(self.name, root=root, folder=folder,
+                                                                       is_for_setup_clmn=True),
                     # df_setup_for_column_address combined with save csv
                     }
 
         return any_dict
 
-    def load_dataframe_from_raw_dataset_list(self, any_raw_dataset_name_list):
+    def load_dataframe_from_raw_dataset_list(self, any_raw_dataset_name_list,
+                                             root_json=dg_stp.root_folder, folder_json=dg_stp.json_folder,
+                                             treat_date=True):
         self.dataframe = pd.DataFrame()
 
         for any_raw_dataset_name in any_raw_dataset_name_list:
-            any_raw_dataset = RawDataset.load_from_json(any_raw_dataset_name)
-            any_raw_dataset.load_dataframe()
+            any_raw_dataset = RawDataset.load_from_json(any_raw_dataset_name, root=root_json, folder=folder_json)
+            any_raw_dataset.load_dataframe(treat_date=treat_date)
             self.dataframe = pd.concat([self.dataframe, any_raw_dataset.dataframe])
 
         return
 
     def load_dataframe(self, any_raw_dataset_name_list, any_mtx_nomenclature=var_gen.void,
-                       any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void):
-        self.load_dataframe_from_raw_dataset_list(any_raw_dataset_name_list)
+                       any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void, root_json=dg_stp.root_folder,
+                       folder_json=dg_stp.json_folder, treat_date=True):
+        self.load_dataframe_from_raw_dataset_list(any_raw_dataset_name_list, treat_date=treat_date,
+                                                  root_json=root_json, folder_json=folder_json)
         self.consolidate_date()
         # clean string for material codes
         self.apply_nomenclature(any_mtx_nomenclature)
@@ -171,7 +180,7 @@ class DataMatrix(BaseDataset):
         self.dataframe = self.dataframe[~self.dataframe[temp_duplicated]]
         self.drop_column_list(column_list=[temp_duplicated], drop_column_list=True)
 
-        df_error[variables.setup.column.error_message] = err_msg.duplicated_index
+        df_error[stp_clmn.error_message] = err_msg.duplicated_index
         df_error.drop(columns=temp_duplicated, inplace=True)
         df_error.reset_index(inplace=True)
         self.df_error = pd.concat([self.df_error, df_error])
@@ -188,8 +197,8 @@ class DataMatrix(BaseDataset):
         return
 
     def apply_uom_conversion_to_si(self, any_mtx_uom_conversion, any_mtx_part_number):
-        column_list = self.get_any_column_list(target_column_list=[variables.setup.column.clmn_var_name],
-                                               add_column_list_to_filter=[variables.setup.column.
+        column_list = self.get_any_column_list(target_column_list=[stp_clmn.clmn_var_name],
+                                               add_column_list_to_filter=[stp_clmn.
                                                uom_conversion_to_be_applied],
                                                add_value_list_to_filter=[True])
 
@@ -216,10 +225,10 @@ class DataMatrix(BaseDataset):
         self.remove_index()
 
         if len(standard_column_list) == 0:
-            standard_column_list = self.get_any_column_list(target_column_list=[variables.setup.column.clmn_var_name],
+            standard_column_list = self.get_any_column_list(target_column_list=[stp_clmn.clmn_var_name],
                                                             add_column_list_to_filter=[],
                                                             add_value_list_to_filter=[])
-            type_list = self.get_any_column_list(target_column_list=[variables.setup.column.type],
+            type_list = self.get_any_column_list(target_column_list=[stp_clmn.type],
                                                  add_column_list_to_filter=[],
                                                  add_value_list_to_filter=[])
         ii = 0
@@ -266,8 +275,8 @@ class DataMatrix(BaseDataset):
         return
 
     def apply_nomenclature(self, any_mtx_nomenclature):
-        column_list = self.get_any_column_list(target_column_list=[variables.setup.column.clmn_var_name],
-                                               add_column_list_to_filter=[variables.setup.column.
+        column_list = self.get_any_column_list(target_column_list=[stp_clmn.clmn_var_name],
+                                               add_column_list_to_filter=[stp_clmn.
                                                nomenclature_to_be_applied],
                                                add_value_list_to_filter=[True])
         if any_mtx_nomenclature != var_gen.void:
@@ -294,7 +303,7 @@ class DataMatrix(BaseDataset):
         return
 
     def consolidate_date(self):
-        var_column_list = list(self.df_setup_for_column[variables.setup.column.clmn_var_name])
+        var_column_list = list(self.df_setup_for_column[stp_clmn.clmn_var_name])
 
         if clmn.date in var_column_list:
             df_date, self.dataframe = self.filter_nan_and_update_error(any_column=clmn.date)
@@ -313,7 +322,7 @@ class DataMatrix(BaseDataset):
         return
 
     def consolidate_volume(self):
-        var_column_list = list(self.df_setup_for_column[variables.setup.column.clmn_var_name])
+        var_column_list = list(self.df_setup_for_column[stp_clmn.clmn_var_name])
 
         if clmn.volume in var_column_list:
             self.consolidate_volume_columns()
@@ -334,8 +343,8 @@ class DataMatrix(BaseDataset):
 
 # load in json
     @staticmethod
-    def load_from_json(name):
-        address = ut.get_filepath(root=stp.root_folder, folder=stp.json_folder, file=name, any_format=stp.json)
+    def load_from_json(name, root=dg_stp.root_folder, folder=dg_stp.json_folder):
+        address = ut.get_filepath(root=root, folder=folder, file=name, any_format=variables.general.json)
 
         with open(address, "r") as outfile:
             content = outfile.read()
@@ -349,7 +358,7 @@ class DataMatrix(BaseDataset):
     def load_header_from_dict(any_dict):
         df_column_setup_filepath = any_dict[dct.df_setup_clmn_filepath]
         df_column_setup = utils.setup.load_csv(df_column_setup_filepath)
-        df_column_setup.fillna(value={variables.setup.column.index: False}, inplace=True)
+        df_column_setup.fillna(value={stp_clmn.index: False}, inplace=True)
         any_datamatrix = DataMatrix(name=any_dict[dct.name], output_filepath=any_dict[dct.filepath],
                                     mytimestamp=any_dict[dct.my_timestamp],
                                     df_setup_for_column=df_column_setup)

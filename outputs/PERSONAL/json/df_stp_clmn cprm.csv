@@ -1,3 +1,0 @@
-Variable name,Input,Input strategy,Multiplier,NAN handling strategy,Standard name,Type,UoM conversion,Nomenclature,String cleaning
-date,Month,Spreadsheet row names,1,Drop row,Date,date,False,False,False
-volume,  - Derivative Volume,Spreadsheet row names,1,Drop row,Volume,float,True,False,False

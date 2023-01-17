@@ -25,24 +25,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/processing/DIAGEO/draft2.py" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "last_opened_file_path": "C:/Users/emily/PycharmProjects/spreadsheetGrinder/variables/DIAGEO_setup/file.py",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\emily\PycharmProjects\spreadsheetGrinder\variables\PERSONAL_setup" />
       <recent name="C:\Users\NettoMan1\OneDrive - Diageo\Category files\99. Python\spreadsheetGrinder\processing\DIAGEO" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\emily\PycharmProjects\spreadsheetGrinder\processing\PERSONAL\old" />
+      <recent name="C:\Users\emily\PycharmProjects\spreadsheetGrinder\variables\" />
+      <recent name="C:\Users\emily\PycharmProjects\spreadsheetGrinder\processing\DIAGEO" />
       <recent name="C:\Users\NettoMan1\OneDrive - Diageo\Category files\99. Python\spreadsheetGrinder\processing\PERSONAL" />
       <recent name="C:\Users\emily\PycharmProjects\PersonalPNL\variables\setup" />
-      <recent name="C:\Users\emily\PycharmProjects\PersonalPNL\processing" />
-      <recent name="C:\Users\emily\PycharmProjects\PersonalPNL\BaseDataset" />
-      <recent name="C:\Users\emily\PycharmProjects\PersonalPNL\Old" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.uom_conversion">
+  <component name="RunManager" selected="Python.draft personal">
+    <configuration name="draft personal" type="PythonConfigurationType" factoryName="Python">
+      <module name="personalPnL" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\emily\PycharmProjects\spreadsheetGrinder\venv\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/processing/PERSONAL" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/processing/PERSONAL/draft.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="draft" type="PythonConfigurationType" factoryName="Python">
       <module name="personalPnL" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -144,7 +167,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pre_loading.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\emily\PycharmProjects\spreadsheetGrinder\processing\DIAGEO\pre_loading.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -205,6 +228,7 @@
       <item itemvalue="Python.pre_loading" />
       <item itemvalue="Python.volume" />
       <item itemvalue="Python.uom_conversion" />
+      <item itemvalue="Python.draft personal" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -222,14 +246,5 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/spreadsheetGrinder$uom_conversion.coverage" NAME="uom_conversion Coverage Results" MODIFIED="1673627116770" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
-    <SUITE FILE_PATH="coverage/spreadsheetGrinder$nomenclature.coverage" NAME="nomenclature Coverage Results" MODIFIED="1673622674124" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
-    <SUITE FILE_PATH="coverage/spreadsheetGrinder$pre_loading.coverage" NAME="pre_loading Coverage Results" MODIFIED="1673144559640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/spreadsheetGrinder$volume.coverage" NAME="volume Coverage Results" MODIFIED="1673374046637" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
-    <SUITE FILE_PATH="coverage/spreadsheetGrinder$draft.coverage" NAME="draft Coverage Results" MODIFIED="1673480234922" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
-    <SUITE FILE_PATH="coverage/spreadsheetGrinder$draft2.coverage" NAME="draft2 Coverage Results" MODIFIED="1673148906206" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
-    <SUITE FILE_PATH="coverage/spreadsheetGrinder$part_number.coverage" NAME="part_number Coverage Results" MODIFIED="1673369402706" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
   </component>
 </project>

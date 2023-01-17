@@ -2,9 +2,10 @@ import copy
 import pandas as pd
 import numpy as np
 import utils.general as ut
-import variables.setup.column
+import variables.setup_column as stp_clmn
+import variables.general
 import variables.type as tp
-import variables.setup.file as stp
+import variables.DIAGEO_setup.file as dg_stp
 import variables.var_column as clmn
 import variables.dict as dct
 import variables.error_message as err_msg
@@ -13,7 +14,7 @@ import variables.general as gen
 
 class BaseDataset:
     def __init__(self, name, any_filepath, df_setup_for_column, mytimestamp=pd.Timestamp(year=1900, month=1, day=1),
-                 date_parser=stp.date_parser_to_save):
+                 date_parser=variables.general.date_parser_to_save):
         self.name = ut.assign_type(name, tp.my_string) # string OK
         self.filepath = ut.treat_filepath(any_filepath) # directory  OK
         self.mytimestamp = ut.assign_type(mytimestamp, tp.my_date)
@@ -51,20 +52,20 @@ class BaseDataset:
         return column_list
 
     def get_var_index_list(self):
-        index_list = self.get_any_column_list(target_column_list=[variables.setup.column.clmn_var_name],
-                                              add_column_list_to_filter=[variables.setup.column.index],
+        index_list = self.get_any_column_list(target_column_list=[stp_clmn.clmn_var_name],
+                                              add_column_list_to_filter=[stp_clmn.index],
                                               add_value_list_to_filter=[True])
         return index_list
 
     def get_var_column_list(self):
-        var_column_list = self.get_any_column_list(target_column_list=[variables.setup.column.clmn_var_name],
+        var_column_list = self.get_any_column_list(target_column_list=[stp_clmn.clmn_var_name],
                                                    add_column_list_to_filter=[],
                                                    add_value_list_to_filter=[])
         return var_column_list
 
     def get_var_column_not_index_list(self):
-        var_column_list = self.get_any_column_list(target_column_list=[variables.setup.column.clmn_var_name],
-                                                   add_column_list_to_filter=[variables.setup.column.index],
+        var_column_list = self.get_any_column_list(target_column_list=[stp_clmn.clmn_var_name],
+                                                   add_column_list_to_filter=[stp_clmn.index],
                                                    add_value_list_to_filter=[False])
         return var_column_list
 
@@ -141,7 +142,7 @@ class BaseDataset:
             self.remove_index()
 
         if len(column_list) == 0 & keep_column_list:
-            column_list = self.get_any_column_list(target_column_list=[variables.setup.column.clmn_var_name],
+            column_list = self.get_any_column_list(target_column_list=[stp_clmn.clmn_var_name],
                                                    add_column_list_to_filter=[],
                                                    add_value_list_to_filter=[])
         if drop_column_list & keep_column_list:
@@ -251,7 +252,7 @@ class BaseDataset:
         df_error = self.dataframe.loc[cond_nan]
 
         if len(error_message) > 1:
-            df_error[variables.setup.column.error_message] = error_message
+            df_error[stp_clmn.error_message] = error_message
 
         dataframe = self.dataframe.loc[~cond_nan]
         # self.drop_column_list(column_list=['temp'], keep_column_list=False)
@@ -286,17 +287,18 @@ class BaseDataset:
         return len(self.dataframe.index)
 
 
-def get_dataframe_filepath(name, is_for_setup_clmn=True, is_for_error=False, is_for_archive=False):
+def get_dataframe_filepath(name, root=dg_stp.root_folder, folder=dg_stp.json_folder, is_for_setup_clmn=True,
+                           is_for_error=False, is_for_archive=False):
     if is_for_setup_clmn:
-        any_filepath = ut.get_filepath(root=stp.root_folder, folder=stp.json_folder,
-                                       file='df_stp_clmn ' + name, any_format=stp.csv)
+        any_filepath = ut.get_filepath(root=root, folder=folder,
+                                       file='df_stp_clmn ' + name, any_format=variables.general.csv)
     elif is_for_error:
-        any_filepath = ut.get_filepath(root=stp.root_folder, folder=stp.json_folder,
-                                       file='df_error ' + name, any_format=stp.csv)
+        any_filepath = ut.get_filepath(root=root, folder=folder,
+                                       file='df_error ' + name, any_format=variables.general.csv)
     elif is_for_archive:
-        any_filepath = ut.get_filepath(root=stp.root_folder, folder=stp.archive_folder,
-                                       file=name, any_format=stp.csv)
+        any_filepath = ut.get_filepath(root=root, folder=folder,
+                                       file=name, any_format=variables.general.csv)
     else:
-        any_filepath = ut.get_filepath(root=stp.root_folder, folder=stp.dataframe_folder,
-                                       file=name, any_format=stp.csv)
+        any_filepath = ut.get_filepath(root=root, folder=folder,
+                                       file=name, any_format=variables.general.csv)
     return any_filepath

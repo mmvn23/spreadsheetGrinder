@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
 import copy
+
+import variables.general
 import variables.var_column as clmn
-import variables.setup.column
+# import variables.setup_column as stp_clmn
 import variables.type as tp
-import variables.setup.file as stp
+# import variables.setup.file as stp
 import variables.general as var_gen
 import datetime
 
@@ -56,7 +58,7 @@ def treat_filepath(filepath):
     return filepath
 
 
-def assign_type_to_dict(input_dict, desired_type_list, date_parser=stp.date_parser_to_save):
+def assign_type_to_dict(input_dict, desired_type_list, date_parser=variables.general.date_parser_to_save):
     any_dict = copy.deepcopy(input_dict)
 
     dict_keys_list = any_dict.keys()
@@ -82,7 +84,7 @@ def assign_type_for_list(value_list, desired_type, date_parser='%m/%d/%Y'):
 
 
 def assign_type(input_value, desired_type, date_parser='%m/%d/%Y'):
-    if input_value != stp.not_applicable:
+    if input_value != variables.general.not_applicable:
         any_value = copy.deepcopy(input_value)
         if desired_type == tp.my_int:
             any_value = int(any_value)
