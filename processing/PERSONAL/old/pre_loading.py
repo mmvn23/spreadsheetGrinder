@@ -52,7 +52,7 @@ def pre_load_objects_raw(df_column, root_json, folder_json):
     any_raw_dataset_list = RawDataset.load_list_of_datasets(df_setup, df_column)
 
     for any_raw_dataset in any_raw_dataset_list:
-        any_raw_dataset.write(root_json=root_json, folder_json=folder_json)
+        any_raw_dataset.write(root=root_json, folder=folder_json)
 
     return
 
@@ -85,7 +85,7 @@ def pre_load_mtx_objects(df_column, root_json, folder_json):
     any_datamatrix_list = DataMatrix.load_list_of_datasets(df_setup, df_column)
 
     for any_datamatrix in any_datamatrix_list:
-        any_datamatrix.write(root_json=root_json, folder_json=folder_json)
+        any_datamatrix.write(root=root_json, folder=folder_json)
 
     return
 

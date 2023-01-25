@@ -5,6 +5,7 @@ import utils.general as ut
 import variables.type as tp
 from Dataset import Raw, Matrix
 import variables.var_column as clmn
+import variables.DIAGEO_setup.my_dict as stp_dct
 
 
 def invert_uom(any_mtx_uom):
@@ -20,18 +21,22 @@ def invert_uom(any_mtx_uom):
     return any_mtx_uom
 
 
-def load_uom_conversion():
-    mtx_uom_conversion = Matrix.DataMatrix.load_from_json('uom_conversion')
-    mtx_nomenclature = Matrix.DataMatrix.load_old_object('nomenclature')
+def load_uom_conversion(any_stp_dict):
+    mtx_uom_conversion = Matrix.DataMatrix.load_from_json('uom_conversion',
+                                                          root=any_stp_dict[dct.root_folder],
+                                                          folder=any_stp_dict[dct.json_folder])
+    mtx_nomenclature = Matrix.DataMatrix.load_old_object('nomenclature', any_stp_dict)
     mtx_uom_conversion.load_dataframe(any_raw_dataset_name_list=['uom_length', 'uom_area', 'uom_volume',
                                                                  'uom_fuel_efficiency', 'uom_mass', 'uom_density',
                                                                  'uom_mass_concentration', 'uom_energy',
                                                                  'uom_material_specific_grain',
                                                                  'uom_material_specific_container'],
-                                      any_mtx_nomenclature=mtx_nomenclature)
+                                      any_mtx_nomenclature=mtx_nomenclature,
+                                      root_json=any_stp_dict[dct.root_folder],
+                                      folder_json=any_stp_dict[dct.json_folder])
     mtx_uom_conversion = invert_uom(mtx_uom_conversion)
     mtx_uom_conversion.remove_duplicated_index()
-    mtx_uom_conversion.write()
+    mtx_uom_conversion.write(any_stp_dict, save_dataframe=True, save_error=True)
 
     return
 
@@ -39,4 +44,4 @@ def load_uom_conversion():
 if __name__ == "__main__":
     pd.set_option('display.max_columns', 10)
     pd.set_option('display.max_rows', 500)
-    load_uom_conversion()
+    load_uom_conversion(stp_dct.setup_dict)

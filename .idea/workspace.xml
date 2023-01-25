@@ -25,12 +25,11 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "last_opened_file_path": "C:/Users/emily/PycharmProjects/spreadsheetGrinder/variables/DIAGEO_setup/file.py",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
-  }
-}]]></component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/processing/DIAGEO/pre_loading.py" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\emily\PycharmProjects\spreadsheetGrinder\variables\PERSONAL_setup" />
@@ -44,7 +43,7 @@
       <recent name="C:\Users\emily\PycharmProjects\PersonalPNL\variables\setup" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.draft personal">
+  <component name="RunManager" selected="Python.draft">
     <configuration name="draft personal" type="PythonConfigurationType" factoryName="Python">
       <module name="personalPnL" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -57,6 +56,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/processing/PERSONAL/draft.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -162,12 +162,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/processing/DIAGEO" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\emily\PycharmProjects\spreadsheetGrinder\processing\DIAGEO\pre_loading.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/processing/DIAGEO/pre_loading.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -241,10 +241,22 @@
       <updated>1664223009511</updated>
       <workItem from="1672861915131" duration="65957000" />
       <workItem from="1673621062150" duration="8468000" />
+      <workItem from="1674514414104" duration="19831000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/spreadsheetGrinder$uom_conversion.coverage" NAME="uom_conversion Coverage Results" MODIFIED="1673627116770" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
+    <SUITE FILE_PATH="coverage/spreadsheetGrinder$nomenclature.coverage" NAME="nomenclature Coverage Results" MODIFIED="1673622674124" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
+    <SUITE FILE_PATH="coverage/spreadsheetGrinder$volume.coverage" NAME="volume Coverage Results" MODIFIED="1673374046637" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
+    <SUITE FILE_PATH="coverage/spreadsheetGrinder$pre_loading.coverage" NAME="pre_loading Coverage Results" MODIFIED="1674161245870" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
+    <SUITE FILE_PATH="coverage/volume_py$pre_loading.coverage" NAME="pre_loading Coverage Results" MODIFIED="1674516225371" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
+    <SUITE FILE_PATH="coverage/spreadsheetGrinder$draft.coverage" NAME="draft Coverage Results" MODIFIED="1674160168272" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
+    <SUITE FILE_PATH="coverage/volume_py$draft.coverage" NAME="draft Coverage Results" MODIFIED="1674657054670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
+    <SUITE FILE_PATH="coverage/spreadsheetGrinder$draft2.coverage" NAME="draft2 Coverage Results" MODIFIED="1673148906206" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
+    <SUITE FILE_PATH="coverage/spreadsheetGrinder$part_number.coverage" NAME="part_number Coverage Results" MODIFIED="1673369402706" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/processing/DIAGEO" />
   </component>
 </project>

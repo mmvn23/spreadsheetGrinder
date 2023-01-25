@@ -40,6 +40,6 @@ mtx_stock.load_dataframe(any_raw_dataset_name_list=['sp_500'], treat_date=False,
                          root_json=ps_stp.root_folder, folder_json=ps_stp.json_folder)
 mtx_stock = add_market_cap_to_datamatrix(original_datamatrix=mtx_stock,
                                          market_cap_clmn=market_cap_clmn, ticker_clmn=ticker_clmn, reset_index=True)
-mtx_stock.write(root_json=ps_stp.root_folder, folder_json=ps_stp.json_folder, folder_dataframe=ps_stp.dataframe_folder)
+mtx_stock.write(root=ps_stp.root_folder, folder=ps_stp.json_folder, folder_dataframe=ps_stp.dataframe_folder)
 # mtx_volume_old = Matrix.DataMatrix.load_old_object('volume', is_for_archive=True)
 # print(get_market_cap_from_yfinance("AAPL"))

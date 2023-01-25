@@ -1,8 +1,9 @@
 import utils.setup
 import variables.setup_column as stp_clmn
-import variables.DIAGEO_setup.file as stp
+# import variables.DIAGEO_setup.file as stp
+import variables.DIAGEO_setup.my_dict as stp_dct
+import variables.dict as dct
 import pandas as pd
-
 import variables.general
 from Dataset.Raw import RawDataset
 from Dataset.Matrix import DataMatrix
@@ -12,9 +13,10 @@ pd.options.display.max_rows = 20000
 pd.set_option('display.max_columns', 100)
 
 
-def pre_load_objects_raw(df_column):
-    df_setup = utils.setup.load_xlsx(filepath=stp.filepath,
-                                     sheet_name=stp.setup_raw_sheet_name,
+def pre_load_objects_raw(df_column, any_stp_dict):
+    # refactor -> both pre_load are almost the same
+    df_setup = utils.setup.load_xlsx(filepath=any_stp_dict[dct.setup_filepath],
+                                     sheet_name=any_stp_dict[dct.setup_raw_sheet_name],
                                      header=variables.general.header,
                                      new_column_list=[stp_clmn.row, stp_clmn.dataset_name,
                                                       stp_clmn.source_name,
@@ -42,24 +44,18 @@ def pre_load_objects_raw(df_column):
                                      index_col=variables.general.index_col,
                                      usecols=variables.general.usecols,
                                      skiprows=variables.general.skiprows)
-    # df_setup.reset_index(inplace=True)
-    # df_setup.rename(columns={stp_clmn.source_name: clmn.source_name,
-    #                           stp_clmn.source_last_update: clmn.source_last_update},
-    #                  inplace=True)
-    # print('PRE_LOADING line 48')
-    # print(df_setup)
-    # df_setup.set_index([stp_clmn.row, stp_clmn.dataset_name], inplace=True)
+
     any_raw_dataset_list = RawDataset.load_list_of_datasets(df_setup, df_column)
 
     for any_raw_dataset in any_raw_dataset_list:
-        any_raw_dataset.write()
+        any_raw_dataset.write(any_stp_dict)
 
     return
 
 
-def pre_load_mtx_objects(df_column):
-    df_setup = utils.setup.load_xlsx(filepath=stp.filepath,
-                                     sheet_name=stp.setup_mtx_sheet_name,
+def pre_load_mtx_objects(df_column, any_stp_dict):
+    df_setup = utils.setup.load_xlsx(filepath=any_stp_dict[dct.setup_filepath],
+                                     sheet_name=any_stp_dict[dct.setup_mtx_sheet_name],
                                      header=variables.general.header,
                                      new_column_list=[stp_clmn.row, stp_clmn.dataset_name,
                                                       stp_clmn.clmn1, stp_clmn.clmn2,
@@ -79,20 +75,19 @@ def pre_load_mtx_objects(df_column):
                                      index_col=variables.general.index_col,
                                      usecols=variables.general.usecols,
                                      skiprows=variables.general.skiprows)
-    # print('PRE_LOADING line 48')
-    # print(df_setup)
-    # df_setup.set_index([stp_clmn.row, stp_clmn.dataset_name], inplace=True)
+
     any_datamatrix_list = DataMatrix.load_list_of_datasets(df_setup, df_column)
 
     for any_datamatrix in any_datamatrix_list:
-        any_datamatrix.write()
+        any_datamatrix.write(any_stp_dict, save_dataframe=False, save_error=False)
 
     return
 
 
-def pre_load_objects():
-    df_column = utils.setup.load_xlsx(filepath=stp.filepath,
-                                      sheet_name=stp.column_sheet_name,
+def pre_load_objects(stp_dict):
+
+    df_column = utils.setup.load_xlsx(filepath=stp_dict[dct.setup_filepath],
+                                      sheet_name=stp_dict[dct.column_sheet_name],
                                       header=variables.general.header,
                                       new_column_list=[stp_clmn.clmn_var_name,
                                                        stp_clmn.clmn_rep_name,
@@ -104,22 +99,13 @@ def pre_load_objects():
                                       index_col=variables.general.index_col,
                                       usecols=variables.general.usecols,
                                       skiprows=variables.general.skiprows)
-    # df_column.reset_index(inplace=True)
-    # df_column.rename(columns={stp_clmn.clmn_var_name: clmn.clmn_var_name,
-    #                   stp_clmn.clmn_rep_name: clmn.clmn_rep_name,
-    #                   stp_clmn.type: clmn.my_type,
-    #                   stp_clmn.uom_conversion_to_be_applied: clmn.uom_conversion_to_be_applied,
-    #                   stp_clmn.nomenclature_to_be_applied: clmn.nomenclature_to_be_applied,
-    #                   stp_clmn.string_cleaning_to_be_applied: clmn.string_cleaning_to_be_applied},
-    #                  inplace=True)
-    # df_column.set_index(clmn.clmn_var_name, inplace=True)
 
-    pre_load_objects_raw(df_column)
-    pre_load_mtx_objects(df_column)
+    pre_load_objects_raw(df_column, stp_dict)
+    pre_load_mtx_objects(df_column, stp_dict)
     return
 
 
 if __name__ == "__main__":
-    pre_load_objects()
+    pre_load_objects(stp_dct.setup_dict)
 
 

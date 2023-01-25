@@ -1,14 +1,12 @@
 import copy
 import pandas as pd
-
 import variables.DIAGEO_setup.file
 import variables.setup_column as stp_clmn
-
 import variables.general
 from Dataset.Base import BaseDataset, get_dataframe_filepath
 import utils.general as ut
 import utils.setup
-import variables.DIAGEO_setup.file as dg_stp
+# import variables.DIAGEO_setup.file as dg_stp
 import variables.var_column as clmn
 import variables.type as tp
 import variables.dict as dct
@@ -163,13 +161,14 @@ class RawDataset(BaseDataset):
         return any_raw_dataset
 
 # write in json
-    def convert_to_dict(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
+#     def convert_to_dict(self, root=dg_stp.root_folder, folder=dg_stp.json_folder)
+    def convert_to_dict(self, any_stp_dict):
         any_dict = {dct.name: self.name,
                     dct.filepath: self.filepath,
                     dct.sheet: self.sheet,
                     dct.my_timestamp: ut.convert_timestamp_to_str(self.mytimestamp,
                                                                   variables.general.date_parser_to_save),
-                    dct.df_setup_clmn_filepath: get_dataframe_filepath(self.name, root=root, folder=folder,
+                    dct.df_setup_clmn_filepath: get_dataframe_filepath(self.name, any_stp_dict,
                                                                        is_for_setup_clmn=True),
                     # df_setup_for_column_address combined with save csv
                     dct.format: self.format,
@@ -187,26 +186,29 @@ class RawDataset(BaseDataset):
 
         return any_dict
 
-    def write_as_json(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
-        address = ut.get_filepath(root=root, folder=folder, file=self.name, any_format=variables.general.json)
+    # def write_as_json(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
+    def write_as_json(self, any_stp_dict):
+        address = ut.get_filepath(root=any_stp_dict[dct.root_folder], folder=any_stp_dict[dct.json_folder],
+                                  file=self.name, any_format=variables.general.json)
         with open(address, "w") as outfile:
-            json.dump(self.convert_to_dict(root=root, folder=folder), outfile, indent=variables.general.json_indent)
+            json.dump(self.convert_to_dict(any_stp_dict), outfile, indent=variables.general.json_indent)
         return
 
-    def write_dataframe_as_csv(self, root, folder, save_df_setup_clmn=False):
+    def write_dataframe_as_csv(self, any_stp_dict, save_df_setup_clmn=False):
         if save_df_setup_clmn:
             any_dataframe = self.df_setup_for_column
-            filepath = get_dataframe_filepath(self.name, root, folder, is_for_setup_clmn=True)
+            filepath = get_dataframe_filepath(self.name, any_stp_dict, is_for_setup_clmn=True)
         else:
             any_dataframe = self.dataframe
-            filepath = get_dataframe_filepath(self.name, root, folder, is_for_setup_clmn=False)
+            filepath = get_dataframe_filepath(self.name, any_stp_dict, is_for_setup_clmn=False)
 
         any_dataframe.to_csv(filepath, encoding=variables.general.encoding_to_save, date_format=variables.general.date_parser_to_save)
         return
 
-    def write(self, root_json=dg_stp.root_folder, folder_json=dg_stp.json_folder):
-        self.write_as_json(root=root_json, folder=folder_json)
-        self.write_dataframe_as_csv(root=root_json, folder=folder_json, save_df_setup_clmn=True)
+    # def write(self, root_json=dg_stp.root_folder, folder_json=dg_stp.json_folder):
+    def write(self, any_stp_dict):
+        self.write_as_json(any_stp_dict)
+        self.write_dataframe_as_csv(any_stp_dict, save_df_setup_clmn=True)
 
         return
 
@@ -658,6 +660,21 @@ class RawDataset(BaseDataset):
             df_to_append = df_to_append.T
             df_to_append.rename({list(df_to_append.columns)[0]: input_column}, axis=1, inplace=True)
         return df_to_append
+
+    @staticmethod
+    def adjust_name_and_filepath_on_raw_dataset_family(any_raw_dataset_list, file_name_list):
+        ii = 0
+        original_filepath = copy.deepcopy(any_raw_dataset_list[ii].filepath)
+        for any_raw_dataset in any_raw_dataset_list:
+            any_raw_dataset.source_dict = ut.assign_type_to_dict({dct.name: file_name_list[ii],
+                                                                  dct.my_timestamp: any_raw_dataset.source_dict[
+                                                                      dct.my_timestamp]},
+                                                      [tp.my_string, tp.my_date], date_parser=[
+                    variables.general.date_parser_to_save])
+            any_raw_dataset.filepath = ut.treat_filepath(original_filepath +
+                                                         variables.general.folder_separator + file_name_list[ii])
+            ii = ii + 1
+        return any_raw_dataset_list
 
     # def get_column_list(self, target_column_list, add_column_list_to_filter=[], add_value_list_to_filter=[]):
     #

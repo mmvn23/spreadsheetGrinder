@@ -7,7 +7,6 @@ from Dataset.Raw import RawDataset
 import variables.var_column as clmn
 import utils.general as ut
 import utils.setup
-import variables.DIAGEO_setup.file as dg_stp
 import variables.format as fmt
 import variables.dict as dct
 import variables.general as var_gen
@@ -100,53 +99,56 @@ class DataMatrix(BaseDataset):
                                     mytimestamp=ut.get_now_timestamp())
         return any_datamatrix
 
-    def write(self, root_json=dg_stp.root_folder, folder_json=dg_stp.json_folder,
-              folder_dataframe=dg_stp.dataframe_folder):
-        self.write_as_json(root=root_json, folder=folder_json)
-        self.write_dataframe_as_csv(root=root_json, folder=folder_dataframe, save_df_setup_clmn=True)
-        self.write_dataframe_as_csv(root=root_json, folder=folder_json, save_df_setup_clmn=False)
-        self.write_dataframe_as_csv(root=root_json, folder=folder_json, save_df_setup_clmn=False, save_df_error=True)
-
+    # def write(self, root_json=dg_stp.root_folder, folder_json=dg_stp.json_folder,
+    #           folder_dataframe=dg_stp.dataframe_folder):
+    def write(self, any_stp_dict, save_dataframe=True, save_error=True):
+        self.write_as_json(any_stp_dict)
+        if save_dataframe:
+            self.write_dataframe_as_csv(any_stp_dict=any_stp_dict)
+        if save_error:
+            self.write_dataframe_as_csv(any_stp_dict=any_stp_dict, save_df_setup_clmn=False, save_df_error=True)
+        self.write_dataframe_as_csv(any_stp_dict=any_stp_dict, save_df_setup_clmn=True, save_df_error=False)
         return
 
-    def write_dataframe_as_csv(self, root, folder, save_df_setup_clmn=False, save_df_error=False):
+    def write_dataframe_as_csv(self, any_stp_dict, save_df_setup_clmn=False, save_df_error=False):
 
         if save_df_setup_clmn:
             any_dataframe = copy.deepcopy(self.df_setup_for_column)
-            filepath = get_dataframe_filepath(self.name, root, folder, is_for_setup_clmn=True)
+            filepath = get_dataframe_filepath(self.name, any_stp_dict, is_for_setup_clmn=True)
         elif save_df_error:
             any_dataframe = copy.deepcopy(self.df_error)
-            filepath = get_dataframe_filepath(self.name, root, folder, is_for_setup_clmn=False, is_for_error=True)
+            filepath = get_dataframe_filepath(self.name, any_stp_dict, is_for_setup_clmn=False, is_for_error=True)
 
         else:
             any_dataframe = copy.deepcopy(self.dataframe)
-            filepath = get_dataframe_filepath(self.name, root, folder, is_for_setup_clmn=False)
+            filepath = get_dataframe_filepath(self.name, any_stp_dict, is_for_setup_clmn=False)
 
         any_dataframe.to_csv(filepath, encoding=variables.general.encoding_to_save,
                              date_format=variables.general.date_parser_to_save)
         return
 
-    def write_as_json(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
-        address = ut.get_filepath(root=root, folder=folder, file=self.name, any_format=variables.general.json)
+    # write_as_json(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
+    def write_as_json(self, any_stp_dict):
+        address = ut.get_filepath(root=any_stp_dict[dct.root_folder], folder=any_stp_dict[dct.json_folder],
+                                  file=self.name, any_format=variables.general.json)
         with open(address, "w") as outfile:
-            json.dump(self.convert_to_dict(root=root, folder=folder), outfile, indent=variables.general.json_indent)
+            json.dump(self.convert_to_dict(any_stp_dict), outfile, indent=variables.general.json_indent)
         return
 
-    def convert_to_dict(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
+    # def convert_to_dict(self, root=dg_stp.root_folder, folder=dg_stp.json_folder):
+    def convert_to_dict(self, any_stp_dict):
         any_dict = {dct.name: self.name,
                     dct.filepath: self.filepath,
                     dct.my_timestamp: ut.convert_timestamp_to_str(self.mytimestamp,
                                                                   variables.general.date_parser_to_save),
-                    dct.df_setup_clmn_filepath: get_dataframe_filepath(self.name, root=root, folder=folder,
+                    dct.df_setup_clmn_filepath: get_dataframe_filepath(self.name, any_stp_dict=any_stp_dict,
                                                                        is_for_setup_clmn=True),
                     # df_setup_for_column_address combined with save csv
                     }
 
         return any_dict
 
-    def load_dataframe_from_raw_dataset_list(self, any_raw_dataset_name_list,
-                                             root_json=dg_stp.root_folder, folder_json=dg_stp.json_folder,
-                                             treat_date=True):
+    def load_dataframe_from_raw_dataset_list(self, any_raw_dataset_name_list, root_json, folder_json, treat_date=True):
         self.dataframe = pd.DataFrame()
 
         for any_raw_dataset_name in any_raw_dataset_name_list:
@@ -156,9 +158,9 @@ class DataMatrix(BaseDataset):
 
         return
 
-    def load_dataframe(self, any_raw_dataset_name_list, any_mtx_nomenclature=var_gen.void,
-                       any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void, root_json=dg_stp.root_folder,
-                       folder_json=dg_stp.json_folder, treat_date=True):
+    def load_dataframe(self, any_raw_dataset_name_list, root_json, folder_json, any_mtx_nomenclature=var_gen.void,
+                       any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void,
+                       treat_date=True):
         self.load_dataframe_from_raw_dataset_list(any_raw_dataset_name_list, treat_date=treat_date,
                                                   root_json=root_json, folder_json=folder_json)
         self.consolidate_date()
@@ -169,6 +171,32 @@ class DataMatrix(BaseDataset):
         self.add_timestamp()
         self.assure_column_integrity()
         self.remove_duplicated_index()
+        return
+
+    def load_dataframe_from_family(self, base_dataset_family_name, any_stp_dict, any_mtx_nomenclature=var_gen.void,
+                                   any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void,
+                                   treat_date=True):
+        any_raw_dataset = RawDataset.load_from_json(base_dataset_family_name, root=any_stp_dict[dct.root_folder],
+                                                    folder=any_stp_dict[dct.json_folder])
+        any_raw_dataset.filepath = ut.remove_file_name_from_filepath(filepath=any_raw_dataset.filepath,
+                                                                     sub_str=var_gen.folder_separator)
+        file_name_list = ut.get_file_list_from_directory(any_raw_dataset.filepath)
+        any_raw_dataset_list = BaseDataset.create_list_of_copied_base_datasets(any_base_dataset=any_raw_dataset,
+                                                                               n_elements=len(file_name_list))
+
+        any_raw_dataset_list = RawDataset.adjust_name_and_filepath_on_raw_dataset_family(any_raw_dataset_list, file_name_list)
+
+        for any_raw_dataset in any_raw_dataset_list:
+            any_raw_dataset.load_dataframe(treat_date)
+            self.dataframe = pd.concat([self.dataframe, any_raw_dataset.dataframe])
+            self.consolidate_date()
+            self.apply_nomenclature(any_mtx_nomenclature)
+            self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number)
+            self.apply_standard_index()
+            self.add_timestamp()
+            self.assure_column_integrity()
+            self.remove_duplicated_index()
+
         return
 
     def remove_duplicated_index(self):
@@ -343,7 +371,7 @@ class DataMatrix(BaseDataset):
 
 # load in json
     @staticmethod
-    def load_from_json(name, root=dg_stp.root_folder, folder=dg_stp.json_folder):
+    def load_from_json(name, root, folder):
         address = ut.get_filepath(root=root, folder=folder, file=name, any_format=variables.general.json)
 
         with open(address, "r") as outfile:
@@ -365,9 +393,11 @@ class DataMatrix(BaseDataset):
         return any_datamatrix
 
     @staticmethod
-    def load_old_object(name, is_for_archive=False):
-        any_datamatrix = DataMatrix.load_from_json(name)
-        filepath = get_dataframe_filepath(any_datamatrix.name, is_for_setup_clmn=False, is_for_archive=is_for_archive)
+    def load_old_object(name, any_stp_dict, is_for_archive=False):
+        any_datamatrix = DataMatrix.load_from_json(name, root=any_stp_dict[dct.root_folder],
+                                                   folder=any_stp_dict[dct.json_folder])
+        filepath = get_dataframe_filepath(any_datamatrix.name, any_stp_dict, is_for_setup_clmn=False,
+                                          is_for_archive=is_for_archive)
         any_datamatrix.dataframe = utils.setup.load_csv(filepath)
 
         any_datamatrix.apply_standard_index()
@@ -376,9 +406,9 @@ class DataMatrix(BaseDataset):
         return any_datamatrix
 
     @staticmethod
-    def load_old_object_list(name_list):
+    def load_old_object_list(name_list, any_stp_dict):
         any_datamatrix_list = []
         for any_name in name_list:
-            any_datamatrix = copy.deepcopy(DataMatrix.load_old_object(any_name))
+            any_datamatrix = copy.deepcopy(DataMatrix.load_old_object(any_name, any_stp_dict))
             any_datamatrix_list.append(any_datamatrix)
         return any_datamatrix_list

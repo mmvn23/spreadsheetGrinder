@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import copy
-
 import variables.general
 import variables.var_column as clmn
 # import variables.setup_column as stp_clmn
@@ -9,6 +8,7 @@ import variables.type as tp
 # import variables.setup.file as stp
 import variables.general as var_gen
 import datetime
+import os
 
 
 def get_value_from_dataframe(input_dataframe, target_column_list, column_list_to_filter, value_list_to_filter,
@@ -52,7 +52,8 @@ def get_filepath(root, folder, file, any_format):
     return any_filepath
 
 
-def treat_filepath(filepath):
+def treat_filepath(original_filepath):
+    filepath = copy.deepcopy(original_filepath)
     filepath = assign_type(filepath, desired_type=tp.my_string)
     filepath = filepath.replace(chr(92), '/').replace('//', '/').replace('..', '.')
     return filepath
@@ -129,11 +130,9 @@ def parse_date_as_timestamp_per_data_parser(original_date, date_parser):
     try:
         if type(original_date) == str:
             any_date = datetime.datetime.strptime(original_date, date_parser)
-
         else:
             any_date = original_date
-        any_date = pd.Timestamp(year=any_date.year, month=any_date.month,
-                                       day=any_date.day)
+        any_date = pd.Timestamp(year=any_date.year, month=any_date.month, day=any_date.day)
         successful_parsing = True
     except ValueError:
         pass
@@ -305,3 +304,23 @@ def get_multiplier_specific(any_mtx_conversion, original, new, part_number):
         error =True
     finally:
         return value, error
+
+
+def remove_file_name_from_filepath(filepath, sub_str):
+    filepath_list = filepath.split(sub_str)
+    filepath_list = filepath_list[:-1]
+    new_filepath = ''
+    ii = 0
+
+    for any_element in filepath_list:
+        if ii > 0:
+            new_filepath = new_filepath + sub_str + any_element
+        else:
+            new_filepath = new_filepath + any_element
+        ii = ii + 1
+
+    return new_filepath
+
+
+def get_file_list_from_directory(filepath):
+    return os.listdir(filepath)

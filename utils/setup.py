@@ -1,7 +1,6 @@
 import pandas as pd
 # import variables.setup.file as stp
 import variables.setup_column as stp_clmn
-
 import variables.general
 import variables.var_column as clmn
 import utils.general as ut

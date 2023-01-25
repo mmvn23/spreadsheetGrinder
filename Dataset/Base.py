@@ -5,7 +5,7 @@ import utils.general as ut
 import variables.setup_column as stp_clmn
 import variables.general
 import variables.type as tp
-import variables.DIAGEO_setup.file as dg_stp
+# import variables.DIAGEO_setup.file as dg_stp
 import variables.var_column as clmn
 import variables.dict as dct
 import variables.error_message as err_msg
@@ -194,8 +194,12 @@ class BaseDataset:
             self.apply_standard_index()
         return
 
-    def print(self):
+    def print(self, dataframe_and_header=False):
+        if dataframe_and_header:
+            print(self)
+
         print(self.dataframe)
+
         return
 
     def filter_based_on_column(self, any_column, value_list, keep_value_in=True):
@@ -286,19 +290,27 @@ class BaseDataset:
     def get_row_number(self):
         return len(self.dataframe.index)
 
+    @staticmethod
+    def create_list_of_copied_base_datasets(any_base_dataset, n_elements):
+        base_dataset_list = []
+        for ii in range(0, n_elements):
+            base_dataset_to_append = copy.deepcopy(any_base_dataset)
+            base_dataset_list = base_dataset_list + [base_dataset_to_append]
+        return base_dataset_list
 
-def get_dataframe_filepath(name, root=dg_stp.root_folder, folder=dg_stp.json_folder, is_for_setup_clmn=True,
+
+def get_dataframe_filepath(name, any_stp_dict, is_for_setup_clmn=True,
                            is_for_error=False, is_for_archive=False):
     if is_for_setup_clmn:
-        any_filepath = ut.get_filepath(root=root, folder=folder,
-                                       file='df_stp_clmn ' + name, any_format=variables.general.csv)
+        any_filepath = ut.get_filepath(root=any_stp_dict[dct.root_folder], folder=any_stp_dict[dct.df_setup_folder],
+                                       file=name, any_format=variables.general.csv)
     elif is_for_error:
-        any_filepath = ut.get_filepath(root=root, folder=folder,
-                                       file='df_error ' + name, any_format=variables.general.csv)
+        any_filepath = ut.get_filepath(root=any_stp_dict[dct.root_folder], folder=any_stp_dict[dct.df_error_folder],
+                                       file=name, any_format=variables.general.csv)
     elif is_for_archive:
-        any_filepath = ut.get_filepath(root=root, folder=folder,
+        any_filepath = ut.get_filepath(root=any_stp_dict[dct.root_folder], folder=any_stp_dict[dct.archive_folder],
                                        file=name, any_format=variables.general.csv)
     else:
-        any_filepath = ut.get_filepath(root=root, folder=folder,
+        any_filepath = ut.get_filepath(root=any_stp_dict[dct.root_folder], folder=any_stp_dict[dct.dataframe_folder],
                                        file=name, any_format=variables.general.csv)
     return any_filepath
