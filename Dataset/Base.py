@@ -86,32 +86,73 @@ class BaseDataset:
             self.assure_column_integrity()
         return
 
+    def apply_uom_conversion_to_column(self, any_column, numerator_dict, denominator_dict={}):
+        numerator_dict[dct.any_mtx_item].remove_index()
+        temp_uom_numerator_clmn = 'temp_uom_numerator_clmn'
+        temp_uom_denominator_clmn = 'temp_uom_denominator_clmn'
+
+        self.remove_index()
+        self.merge_dataframe(original_right_dataset=numerator_dict[dct.any_mtx_item],
+                             desired_column_list=[numerator_dict[dct.new_uom]],
+                             left_on_list=[numerator_dict[dct.key_clmn]], right_on_list=[numerator_dict[dct.key_clmn]],
+                             reset_left_index=False, reset_right_index=False, drop_right_on_list=False)
+        self.rename_column_list(old_clmn_list=[numerator_dict[dct.old_uom]],
+                                new_clmn_list=[temp_uom_numerator_clmn])
+        self.rename_column_list(old_clmn_list=[numerator_dict[dct.new_uom]],
+                                new_clmn_list=[numerator_dict[dct.old_uom]])
+        numerator_dict[dct.new_uom] = numerator_dict[dct.old_uom]
+        numerator_dict[dct.old_uom] = temp_uom_numerator_clmn
+
+        if len(denominator_dict) > 0:
+            denominator_dict[dct.any_mtx_item].remove_index()
+            self.merge_dataframe(original_right_dataset=denominator_dict[dct.any_mtx_item],
+                                 desired_column_list=[denominator_dict[dct.new_uom]],
+                                 left_on_list=[denominator_dict[dct.key_clmn]], 
+                                 right_on_list=[denominator_dict[dct.key_clmn]],
+                                 reset_left_index=False, reset_right_index=False, drop_right_on_list=False)
+            self.rename_column_list(old_clmn_list=[denominator_dict[dct.old_uom]],
+                                    new_clmn_list=[temp_uom_denominator_clmn])
+            self.rename_column_list(old_clmn_list=[denominator_dict[dct.new_uom]],
+                                    new_clmn_list=[denominator_dict[dct.old_uom]])
+
+            denominator_dict[dct.new_uom] = denominator_dict[dct.old_uom]
+            denominator_dict[dct.old_uom] = temp_uom_denominator_clmn
+
+        self.convert_uom(any_clmn=any_column, numerator_dict=numerator_dict, denominator_dict=denominator_dict, )
+        self.apply_standard_index()
+        self.assure_column_integrity()
+
+        return
+
     def convert_uom(self, any_clmn, numerator_dict, denominator_dict):
         # numerator_dict = {dct.any_mtx_conversion: any_mtx_uom_conversion,
         #                   dct.old_uom: 'a',
         #                   dct.new_uom: 'b'}
         temp_multiplier_numerator = 'temp numerator'
         temp_multiplier_denominator = 'temp denominator'
+
         self.add_uom_multiplier(any_mtx_conversion=numerator_dict[dct.any_mtx_conversion],
                                 multiplier_clmn=temp_multiplier_numerator,
                                 original_clmn=numerator_dict[dct.old_uom],
-                                new_clmn=numerator_dict[dct.new_uom])
+                                new_clmn=numerator_dict[dct.new_uom],
+                                key_clmn=numerator_dict[dct.key_clmn])
 
         if len(denominator_dict) > 0:
             self.add_uom_multiplier(any_mtx_conversion=denominator_dict[dct.any_mtx_conversion],
                                     multiplier_clmn=temp_multiplier_denominator,
                                     original_clmn=denominator_dict[dct.old_uom],
-                                    new_clmn=denominator_dict[dct.new_uom])
+                                    new_clmn=denominator_dict[dct.new_uom],
+                                    key_clmn=denominator_dict[dct.key_clmn])
         else:
             self.dataframe[temp_multiplier_denominator] = 1
 
-        df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=temp_multiplier_numerator,
-                                                                              error_message=err_msg.uom_conversion)
+        df_error_to_concat, self.dataframe = self.filter_nan_dataframe(any_column=temp_multiplier_numerator,
+                                                                       error_message=err_msg.uom_conversion)
 
         self.df_error = pd.concat([self.df_error, df_error_to_concat])
 
-        df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=temp_multiplier_denominator,
-                                                                              error_message=err_msg.uom_conversion)
+        df_error_to_concat, self.dataframe = self.filter_nan_dataframe(any_column=temp_multiplier_denominator,
+                                                                       error_message=err_msg.uom_conversion)
         self.df_error = pd.concat([self.df_error, df_error_to_concat])
 
         self.multiply_column_by_another(multiplier_clmn=any_clmn, multiplicand_clmn=temp_multiplier_numerator,
@@ -119,20 +160,22 @@ class BaseDataset:
         self.divide_column_by_another(dividend_clmn=any_clmn, divisor_clmn=temp_multiplier_denominator,
                                       result_clmn=any_clmn)
 
-        df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=any_clmn,
-                                                                              error_message=err_msg.uom_conversion)
+        df_error_to_concat, self.dataframe = self.filter_nan_dataframe(any_column=any_clmn,
+                                                                       error_message=err_msg.uom_conversion)
 
         self.df_error = pd.concat([self.df_error, df_error_to_concat])
-
+        self.drop_column_list(column_list=[temp_multiplier_numerator, temp_multiplier_denominator])
         return
 
-    def add_uom_multiplier(self, any_mtx_conversion, multiplier_clmn, original_clmn, new_clmn):
+    # refactor hard coded
+    def add_uom_multiplier(self, any_mtx_conversion, multiplier_clmn, original_clmn, new_clmn,
+                           key_clmn=clmn.part_number_code):
 
         self.dataframe[multiplier_clmn] = self.dataframe.apply(lambda row: ut.get_multiplier_from_mtx_conversion(
                                                                                any_mtx_conversion=any_mtx_conversion,
                                                                                original=row[original_clmn],
                                                                                new=row[new_clmn],
-                                                                               part_number=row[clmn.part_number_code]),
+                                                                               part_number=row[key_clmn]),
                                                                             axis=1)
         return
 
@@ -197,17 +240,31 @@ class BaseDataset:
     def print(self, dataframe_and_header=False):
         if dataframe_and_header:
             print(self)
-
         print(self.dataframe)
-
         return
 
     def filter_based_on_column(self, any_column, value_list, keep_value_in=True):
         cond = self.dataframe[any_column].isin(value_list)
-
         self.dataframe = self.dataframe[cond]
-
         return
+
+    def get_terms_of_a_column(self, any_column):
+        term_list = list(set(self.dataframe[any_column]))
+        return term_list
+
+    def split_based_on_column_categories(self, any_column):
+        term_list = self.get_terms_of_a_column(any_column)
+        any_base_dataset_list = self.create_list_of_copied_base_datasets(n_elements=len(term_list))
+        ii = 0
+
+        any_base_dataset_list = BaseDataset.adjust_name_on_base_dataset_list(
+            any_base_dataset_list=any_base_dataset_list, term_list=term_list, separator=' - ')
+
+        for any_base_dataset in any_base_dataset_list:
+            any_base_dataset.filter_based_on_column(any_column=any_column, value_list=[term_list[ii]])
+            ii = ii + 1
+
+        return any_base_dataset_list
 
 # ARITHMETIC
     def sum_columns(self, result_clmn, summand_clmn_list, reset_index=False):
@@ -243,37 +300,52 @@ class BaseDataset:
                 new_column_list = new_column_list + [any_clmn]
         return new_column_list
 
-    def filter_nan_and_update_error(self, any_column, error_message=''):
+    def filter_nan_dataframe(self, any_column, error_message='', update_df_error=True):
         # refactor later
-        # self.dataframe['temp'] = self.dataframe[any_column]
-        # self.dataframe['temp'].fillna(value=gen.void, inplace=True)
 
         cond_nan_pd = pd.isnull(self.dataframe[any_column])
         cond_nan = cond_nan_pd
-        # cond_float_nan = self.dataframe['temp'].isin(['<NA>', 'NaN', 'None', '', 'nan', gen.void])
-        # cond_nan = cond_nan_pd | cond_float_nan
 
-        df_error = self.dataframe.loc[cond_nan]
+        if update_df_error:
+            df_error = self.dataframe.loc[cond_nan]
 
-        if len(error_message) > 1:
-            df_error[stp_clmn.error_message] = error_message
+            if len(error_message) > 1:
+                df_error[stp_clmn.error_message] = error_message
+        else:
+            df_error = self.df_error
 
         dataframe = self.dataframe.loc[~cond_nan]
-        # self.drop_column_list(column_list=['temp'], keep_column_list=False)
+
         return df_error, dataframe
 
+    def filter_nan_base_dataset(self, any_column, error_message, reset_index=False, update_df_error=True):
+
+        if reset_index:
+            self.remove_index()
+
+        self.df_error, self.dataframe = self.filter_nan_dataframe(any_column, error_message=error_message,
+                                                                  update_df_error=update_df_error)
+        if reset_index:
+            self.apply_standard_index()
+        return
+
     def merge_dataframe(self, original_right_dataset, desired_column_list, left_on_list, right_on_list,
-                        reset_left_index=False, reset_right_index=False, drop_right_on_list=True):
+                        reset_left_index=False, reset_right_index=False, drop_right_on_list=True,
+                        multilevel_datamatrix=False):
         if reset_left_index:
             self.reset_index()
         right_dataframe = copy.deepcopy(original_right_dataset.dataframe)
         if reset_right_index:
             right_dataframe.reset_index(inplace=True)
-        right_dataframe = right_dataframe[desired_column_list + right_on_list]
+
+        if not multilevel_datamatrix:
+            right_dataframe = right_dataframe[desired_column_list + right_on_list]
+
         self.dataframe = self.dataframe.merge(right_dataframe, how='left', left_on=left_on_list,
                                               right_on=right_on_list)
-        if drop_right_on_list:
+        if drop_right_on_list and not multilevel_datamatrix:
             self.drop_column_list(column_list=right_on_list, drop_column_list=True)
+
         if reset_left_index:
             self.apply_standard_index()
         return
@@ -290,13 +362,63 @@ class BaseDataset:
     def get_row_number(self):
         return len(self.dataframe.index)
 
-    @staticmethod
-    def create_list_of_copied_base_datasets(any_base_dataset, n_elements):
+    # def create_list_of_copied_base_datasets(self, n_elements):
+    #     base_dataset_list = BaseDataset.create_list_of_copied_base_datasets(self, n_elements)
+    #     return base_dataset_list
+
+    def create_list_of_copied_base_datasets(self, n_elements):
         base_dataset_list = []
         for ii in range(0, n_elements):
-            base_dataset_to_append = copy.deepcopy(any_base_dataset)
+            base_dataset_to_append = copy.deepcopy(self)
             base_dataset_list = base_dataset_list + [base_dataset_to_append]
         return base_dataset_list
+
+    @staticmethod
+    def adjust_name_on_basedataset_dataset_list(any_base_dataset_list, term_list,
+                                                separator=variables.general.folder_separator):
+        ii = 0
+        original_filepath = copy.deepcopy(any_base_dataset_list[ii].filepath)
+        for any_base_dataset in any_base_dataset_list:
+            try:
+                any_base_dataset.source_dict = ut.assign_type_to_dict({dct.name: term_list[ii],
+                                                                      dct.my_timestamp: any_base_dataset.source_dict[
+                                                                          dct.my_timestamp]},
+                                                          [tp.my_string, tp.my_date], date_parser=[
+                        variables.general.date_parser_to_save])
+            except AttributeError:
+                pass
+
+            # create new function to adjust filepath depending on separator
+            any_base_dataset.filepath = ut.append_filepath(original_filepath, separator, term=term_list[ii])
+            # any_base_dataset.filepath = ut.treat_filepath(original_filepath + separator
+            #                                               + term_list[ii])
+            ii = ii + 1
+        return any_base_dataset_list
+
+    @staticmethod
+    def adjust_name_on_base_dataset_list(any_base_dataset_list, term_list,
+                                         separator=variables.general.folder_separator):
+        ii = 0
+        original_filepath = copy.deepcopy(any_base_dataset_list[ii].filepath)
+        original_name = any_base_dataset_list[0].name
+
+        for any_base_dataset in any_base_dataset_list:
+            try:
+                any_base_dataset.source_dict = ut.assign_type_to_dict({dct.name: term_list[ii],
+                                                                      dct.my_timestamp: any_base_dataset.source_dict[
+                                                                          dct.my_timestamp]},
+                                                          [tp.my_string, tp.my_date], date_parser=[
+                        variables.general.date_parser_to_save])
+            except AttributeError:
+                pass
+
+            any_base_dataset.name = original_name + separator + term_list[ii]
+            any_base_dataset.filepath = ut.append_filepath(original_filepath, separator, term=term_list[ii])
+            # any_base_dataset.filepath = ut.treat_filepath(original_filepath + separator
+            #                                               + term_list[ii])
+            ii = ii + 1
+
+        return any_base_dataset_list
 
 
 def get_dataframe_filepath(name, any_stp_dict, is_for_setup_clmn=True,

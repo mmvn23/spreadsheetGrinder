@@ -1,0 +1,24 @@
+{
+    "name": "uom_area",
+    "filepath": "C:/Users/emily/PycharmProjects/PersonalPNL/inputs/UoM conversion.xlsx",
+    "sheet": "Area",
+    "timestamp": "11/14/2022",
+    "df setup clmn filepath": "C:/Users/emily/PycharmProjects/PersonalPNL/outputs/json/df_stp_clmn uom_area.csv",
+    "format": "xlsx",
+    "source dict": {
+        "name": "system",
+        "timestamp": "10/20/2022"
+    },
+    "to be transposed": "True",
+    "use cols": "A:C",
+    "nrows": 100,
+    "date parser": [
+        "%m/%d/%Y"
+    ],
+    "skip row": {
+        "bf header": 0,
+        "af header": 0
+    },
+    "encoding": "ascii",
+    "decimal": "."
+}

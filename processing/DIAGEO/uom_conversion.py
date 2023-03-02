@@ -30,7 +30,10 @@ def load_uom_conversion(any_stp_dict):
                                                                  'uom_fuel_efficiency', 'uom_mass', 'uom_density',
                                                                  'uom_mass_concentration', 'uom_energy',
                                                                  'uom_material_specific_grain',
-                                                                 'uom_material_specific_container'],
+                                                                 'uom_material_specific_container',
+                                                                 'uom_material_specific_liquids',
+                                                                 'uom_material_specific_sweeteners',
+                                                                 ],
                                       any_mtx_nomenclature=mtx_nomenclature,
                                       root_json=any_stp_dict[dct.root_folder],
                                       folder_json=any_stp_dict[dct.json_folder])

@@ -108,6 +108,7 @@ class DataMatrix(BaseDataset):
         if save_error:
             self.write_dataframe_as_csv(any_stp_dict=any_stp_dict, save_df_setup_clmn=False, save_df_error=True)
         self.write_dataframe_as_csv(any_stp_dict=any_stp_dict, save_df_setup_clmn=True, save_df_error=False)
+        print('MTX 111 - writing successfully ', self.name)
         return
 
     def write_dataframe_as_csv(self, any_stp_dict, save_df_setup_clmn=False, save_df_error=False):
@@ -158,7 +159,8 @@ class DataMatrix(BaseDataset):
 
         return
 
-    def load_dataframe(self, any_raw_dataset_name_list, root_json, folder_json, any_mtx_nomenclature=var_gen.void,
+    def load_dataframe(self, any_raw_dataset_name_list, root_json, folder_json, key_clmn='',
+                       any_mtx_nomenclature=var_gen.void,
                        any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void,
                        treat_date=True):
         self.load_dataframe_from_raw_dataset_list(any_raw_dataset_name_list, treat_date=treat_date,
@@ -166,7 +168,7 @@ class DataMatrix(BaseDataset):
         self.consolidate_date()
         # clean string for material codes
         self.apply_nomenclature(any_mtx_nomenclature)
-        self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number)
+        self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number, key_clmn)
         self.apply_standard_index()
         self.add_timestamp()
         self.assure_column_integrity()
@@ -181,10 +183,10 @@ class DataMatrix(BaseDataset):
         any_raw_dataset.filepath = ut.remove_file_name_from_filepath(filepath=any_raw_dataset.filepath,
                                                                      sub_str=var_gen.folder_separator)
         file_name_list = ut.get_file_list_from_directory(any_raw_dataset.filepath)
-        any_raw_dataset_list = BaseDataset.create_list_of_copied_base_datasets(any_base_dataset=any_raw_dataset,
-                                                                               n_elements=len(file_name_list))
-
-        any_raw_dataset_list = RawDataset.adjust_name_and_filepath_on_raw_dataset_family(any_raw_dataset_list, file_name_list)
+        any_raw_dataset_list = any_raw_dataset.create_list_of_copied_base_datasets(n_elements=len(file_name_list))
+        # any_raw_dataset_list = RawDataset.adjust_name_and_filepath_on_raw_dataset_family(any_raw_dataset_list,
+        #                                                                                  file_name_list)
+        any_raw_dataset_list = BaseDataset.adjust_name_on_base_dataset_list(any_raw_dataset_list, file_name_list)
 
         for any_raw_dataset in any_raw_dataset_list:
             any_raw_dataset.load_dataframe(treat_date)
@@ -197,6 +199,29 @@ class DataMatrix(BaseDataset):
             self.assure_column_integrity()
             self.remove_duplicated_index()
 
+        return
+
+    def assign_datamatrix_to_empty_header(self, input_datamatrix):
+        any_datamatrix = copy.deepcopy(input_datamatrix)
+        any_datamatrix.add_name_to_second_level_column()
+        self.dataframe = any_datamatrix.dataframe
+
+        return
+
+    def merge_datamatrix(self, right_datamatrix, desired_column_list, left_on_list,
+                         right_on_list, multilevel_datamatrix, reset_left_index=False, reset_right_index=False,
+                         drop_right_on_list=True):
+        any_datamatrix = copy.deepcopy(right_datamatrix)
+        any_datamatrix.add_name_to_second_level_column()
+        self.merge_dataframe(original_right_dataset=any_datamatrix, desired_column_list=desired_column_list,
+                             left_on_list=left_on_list, right_on_list=right_on_list,
+                             reset_left_index=reset_left_index, reset_right_index=reset_right_index,
+                             drop_right_on_list=drop_right_on_list, multilevel_datamatrix=multilevel_datamatrix)
+        return
+
+    def add_name_to_second_level_column(self):
+        self.dataframe.columns = pd.MultiIndex.from_product([[ut.get_datamatrix_name(self.name)],
+                                                             self.dataframe.columns])
         return
 
     def remove_duplicated_index(self):
@@ -224,7 +249,46 @@ class DataMatrix(BaseDataset):
         self.df_error = pd.concat([self.df_error, any_df_error])
         return
 
-    def apply_uom_conversion_to_si(self, any_mtx_uom_conversion, any_mtx_part_number):
+    def apply_uom_conversion_to_numerator_and_denominator(self, numerator_code_clmn, numerator_value_clmn,
+                                                          numerator_uom_clmn, mtx_numerator_uom, new_uom_clmn,
+                                                          denominator_code_clmn, denominator_value_clmn,
+                                                          denominator_uom_clmn, mtx_denominator_uom,
+                                                          any_mtx_uom_conversion):
+        mtx_numerator = copy.deepcopy(self)
+        mtx_denominator = copy.deepcopy(self)
+        mtx_numerator.drop_column_list(column_list=[denominator_value_clmn, denominator_uom_clmn],
+                                       drop_column_list=True, reset_index=True)
+        mtx_numerator.remove_index()
+        mtx_numerator_uom.remove_index()
+        mtx_numerator.merge_dataframe(original_right_dataset=mtx_numerator_uom,
+                                      desired_column_list=[new_uom_clmn], left_on_list=[numerator_code_clmn],
+                                      right_on_list=[numerator_code_clmn],
+                                      reset_left_index=False, reset_right_index=False, drop_right_on_list=False)
+
+        mtx_numerator.convert_uom(any_clmn=numerator_value_clmn, numerator_dict={dct.any_mtx_conversion: any_mtx_uom_conversion,
+                                                                                 dct.old_uom: numerator_uom_clmn,
+                                                                                 dct.new_uom: new_uom_clmn}, denominator_dict={})
+        print('MTX 242')
+        mtx_denominator.drop_column_list(column_list=[numerator_code_clmn, denominator_code_clmn,
+                                                      denominator_value_clmn, denominator_uom_clmn],
+                                         drop_column_list=False, keep_column_list=True, reset_index=True)
+        mtx_denominator.remove_index()
+        mtx_denominator_uom.remove_index()
+        # numerator_dict = {dct.any_mtx_conversion: any_mtx_uom_conversion,
+        #                   dct.old_uom: 'a',
+        #                   dct.new_uom: 'b'}
+
+
+        # drop_column_list(column_list=[], drop_column_list=True, keep_column_list=False, reset_index=False)
+
+        # split into two mtx
+        # other clmn stay on numerator
+        # apply uom conversion on both
+        # include sweeteners and gns
+        # remove nan
+        return
+
+    def apply_uom_conversion_to_si(self, any_mtx_uom_conversion, any_mtx_part_number, key_clmn):
         column_list = self.get_any_column_list(target_column_list=[stp_clmn.clmn_var_name],
                                                add_column_list_to_filter=[stp_clmn.
                                                uom_conversion_to_be_applied],
@@ -237,15 +301,17 @@ class DataMatrix(BaseDataset):
 
         if any_mtx_uom_conversion != var_gen.void:
             for any_column in column_list:
-                self.apply_uom_conversion_to_si_to_column(any_mtx_uom_conversion, any_column)
+                self.apply_uom_conversion_to_si_to_column(any_mtx_uom_conversion, any_column, key_clmn)
 
         return
 
-    def apply_uom_conversion_to_si_to_column(self, any_mtx_uom_conversion, any_column):
+    def apply_uom_conversion_to_si_to_column(self, any_mtx_uom_conversion, any_column, key_clmn):
         self.convert_uom(any_clmn=any_column, numerator_dict={dct.any_mtx_conversion: any_mtx_uom_conversion,
                                                               dct.old_uom: clmn.uom,
-                                                              dct.new_uom: clmn.si_uom},
+                                                              dct.new_uom: clmn.si_uom,
+                                                              dct.key_clmn: key_clmn},
                          denominator_dict={})
+
         self.rename_column_list(old_clmn_list=[clmn.uom, clmn.si_uom], new_clmn_list=['input uom', clmn.uom])
         return
 
@@ -298,7 +364,7 @@ class DataMatrix(BaseDataset):
             print(any_standard_clmn, desired_type)
             raise ('ERROR: type not implemented')
 
-        self.filter_nan_and_update_error(any_standard_clmn, error_message=err_msg.type_conversion)
+        self.filter_nan_dataframe(any_standard_clmn, error_message=err_msg.type_conversion)
 
         return
 
@@ -320,8 +386,8 @@ class DataMatrix(BaseDataset):
                              reset_left_index=False, reset_right_index=True)
         self.drop_column_list(column_list=[any_column], drop_column_list=True, reset_index=False)
         self.rename_column_list(old_clmn_list=[clmn.term_after_nomenclature], new_clmn_list=[any_column])
-        df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=any_column,
-                                                                              error_message=
+        df_error_to_concat, self.dataframe = self.filter_nan_dataframe(any_column=any_column,
+                                                                       error_message=
                                                                               err_msg.nomenclature + any_column)
         self.df_error = pd.concat([self.df_error, df_error_to_concat])
         return
@@ -334,7 +400,7 @@ class DataMatrix(BaseDataset):
         var_column_list = list(self.df_setup_for_column[stp_clmn.clmn_var_name])
 
         if clmn.date in var_column_list:
-            df_date, self.dataframe = self.filter_nan_and_update_error(any_column=clmn.date)
+            df_date, self.dataframe = self.filter_nan_dataframe(any_column=clmn.date)
 
             if len(df_date) > 0:
                 df_date[clmn.date] = df_date.apply(lambda row: ut.get_date_from_month_and_period(row[clmn.month_day_as_date],
@@ -342,8 +408,8 @@ class DataMatrix(BaseDataset):
                                                                                                  row[clmn.fiscal_year]), axis=1)
 
                 self.dataframe = pd.concat([self.dataframe, df_date])
-                df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=clmn.date,
-                                                                                  error_message=
+                df_error_to_concat, self.dataframe = self.filter_nan_dataframe(any_column=clmn.date,
+                                                                               error_message=
                                                                                   err_msg.date_consolidation)
                 self.df_error = pd.concat([self.df_error, df_error_to_concat])
 
@@ -354,8 +420,8 @@ class DataMatrix(BaseDataset):
 
         if clmn.volume in var_column_list:
             self.consolidate_volume_columns()
-            df_error_to_concat, self.dataframe = self.filter_nan_and_update_error(any_column=clmn.volume,
-                                                                                  error_message=
+            df_error_to_concat, self.dataframe = self.filter_nan_dataframe(any_column=clmn.volume,
+                                                                           error_message=
                                                                                   err_msg.volume_consolidation)
             self.df_error = pd.concat([self.df_error, df_error_to_concat])
 
@@ -368,6 +434,10 @@ class DataMatrix(BaseDataset):
                                        [0] * len(clmn_list + [clmn.volume]))), inplace=True)
         self.sum_columns(result_clmn=clmn.volume, summand_clmn_list=clmn_list)
         return
+
+    # def multiply_multilevel_column_by_another(self, multiplier_tuple_clmn, multiplicand_tuple_clmn, product_clmn):
+    #     self.dataframe[product_clmn] = self.dataframe[multiplier_clmn] * self.dataframe[multiplicand_clmn]
+    #     return
 
 # load in json
     @staticmethod
@@ -412,3 +482,13 @@ class DataMatrix(BaseDataset):
             any_datamatrix = copy.deepcopy(DataMatrix.load_old_object(any_name, any_stp_dict))
             any_datamatrix_list.append(any_datamatrix)
         return any_datamatrix_list
+
+
+def write_base_dataset_list(any_base_dataset_list, any_stp_dict):
+
+    for any_base_dataset in any_base_dataset_list:
+        print('BASE 366')
+        print(any_base_dataset.filepath)
+        any_base_dataset.write(any_stp_dict, save_dataframe=True, save_error=True)
+
+    return any_base_dataset_list

@@ -661,20 +661,20 @@ class RawDataset(BaseDataset):
             df_to_append.rename({list(df_to_append.columns)[0]: input_column}, axis=1, inplace=True)
         return df_to_append
 
-    @staticmethod
-    def adjust_name_and_filepath_on_raw_dataset_family(any_raw_dataset_list, file_name_list):
-        ii = 0
-        original_filepath = copy.deepcopy(any_raw_dataset_list[ii].filepath)
-        for any_raw_dataset in any_raw_dataset_list:
-            any_raw_dataset.source_dict = ut.assign_type_to_dict({dct.name: file_name_list[ii],
-                                                                  dct.my_timestamp: any_raw_dataset.source_dict[
-                                                                      dct.my_timestamp]},
-                                                      [tp.my_string, tp.my_date], date_parser=[
-                    variables.general.date_parser_to_save])
-            any_raw_dataset.filepath = ut.treat_filepath(original_filepath +
-                                                         variables.general.folder_separator + file_name_list[ii])
-            ii = ii + 1
-        return any_raw_dataset_list
+    # @staticmethod
+    # def adjust_name_and_filepath_on_raw_dataset_family(any_raw_dataset_list, file_name_list):
+    #     ii = 0
+    #     original_filepath = copy.deepcopy(any_raw_dataset_list[ii].filepath)
+    #     for any_raw_dataset in any_raw_dataset_list:
+    #         any_raw_dataset.source_dict = ut.assign_type_to_dict({dct.name: file_name_list[ii],
+    #                                                               dct.my_timestamp: any_raw_dataset.source_dict[
+    #                                                                   dct.my_timestamp]},
+    #                                                   [tp.my_string, tp.my_date], date_parser=[
+    #                 variables.general.date_parser_to_save])
+    #         any_raw_dataset.filepath = ut.treat_filepath(original_filepath +
+    #                                                      variables.general.folder_separator + file_name_list[ii])
+    #         ii = ii + 1
+    #     return any_raw_dataset_list
 
     # def get_column_list(self, target_column_list, add_column_list_to_filter=[], add_value_list_to_filter=[]):
     #

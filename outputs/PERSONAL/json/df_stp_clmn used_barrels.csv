@@ -1,0 +1,7 @@
+Variable name,Input,Input strategy,Multiplier,NAN handling strategy,Standard name,Type,UoM conversion,Nomenclature,String cleaning
+date,DATE UNLOADED,Spreadsheet clmn names,1,Drop row,Date,date,False,False,False
+location_l0,DISTILLERY ,Spreadsheet clmn names,1,Drop row,Location,str,False,True,False
+volume,Repair,Spreadsheet clmn names,1,Drop row,Volume,float,True,False,False
+uom,barrel,Fill with constant,1,Drop row,UoM,str,False,True,False
+part_number_code,rp_001,Fill with constant,1,Drop row,Part number code,str,False,False,True
+vendor_code,300003,Fill with constant,1,Drop row,Vendor code,str,False,False,True

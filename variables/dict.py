@@ -19,6 +19,8 @@ date_parser = 'date parser'
 old_uom = 'old uom'
 new_uom = 'new uom'
 any_mtx_conversion = 'any_mtx_conversion'
+any_mtx_item = 'any_mtx_item'
+key_clmn = 'key_clmn'
 
 setup_filepath = 'setup_filepath'
 setup_raw_sheet_name = 'setup_raw_sheet_name'

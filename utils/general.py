@@ -7,6 +7,7 @@ import variables.var_column as clmn
 import variables.type as tp
 # import variables.setup.file as stp
 import variables.general as var_gen
+import variables.format as var_fmt
 import datetime
 import os
 
@@ -266,7 +267,7 @@ def get_multiplier_from_mtx_conversion(any_mtx_conversion, original, new, part_n
         if error_general:
             value, error_specific = get_multiplier_specific(any_mtx_conversion, original, new, part_number)
 
-    error_combined = error_general | error_specific
+    error_combined = error_general & error_specific
 
     if error_combined:
         value = pd.NA
@@ -292,13 +293,16 @@ def get_multiplier_general(any_mtx_conversion, original, new):
 
 def get_multiplier_specific(any_mtx_conversion, original, new, part_number):
     error = False
-
+    # print('gen 296')
+    # print(original, new, part_number)
+    # print(any_mtx_conversion.dataframe)
     try:
         value = get_value_from_dataframe(input_dataframe=any_mtx_conversion.dataframe,
                                          target_column_list=clmn.multiplier,
                                          column_list_to_filter=[clmn.original, clmn.new, clmn.strategy, clmn.part_number_code],
                                          value_list_to_filter=[original, new, var_gen.uom_specific, part_number],
                                          reset_index=True)
+        # print(value)
     except:
         value = ''
         error =True
@@ -324,3 +328,23 @@ def remove_file_name_from_filepath(filepath, sub_str):
 
 def get_file_list_from_directory(filepath):
     return os.listdir(filepath)
+
+
+def get_datamatrix_name(name):
+    return var_gen.datamatrix_header + name
+
+
+def append_filepath(original_filepath, separator, term):
+    new_filepath = copy.deepcopy(original_filepath)
+    if separator == variables.general.folder_separator:
+        new_filepath = treat_filepath(new_filepath + separator + term)
+    else:
+        print('general 335')
+        print(term)
+        print(new_filepath)
+        new_filepath = new_filepath.replace('.' + var_fmt.csv, '')
+        new_filepath = treat_filepath(new_filepath + separator + term)
+        new_filepath = new_filepath + '.' + var_fmt.csv
+        print(new_filepath)
+    return new_filepath
+

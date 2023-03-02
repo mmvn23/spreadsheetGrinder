@@ -1,0 +1,24 @@
+{
+    "name": "valleyfield_grain",
+    "filepath": "C:/Users/emily/PycharmProjects/PersonalPNL/inputs/Data samples reduced.xlsx",
+    "sheet": "VF Grain",
+    "timestamp": "11/14/2022",
+    "df setup clmn filepath": "C:/Users/emily/PycharmProjects/PersonalPNL/outputs/json/df_stp_clmn valleyfield_grain.csv",
+    "format": "xlsx",
+    "source dict": {
+        "name": "Valleyfield",
+        "timestamp": "10/01/2022"
+    },
+    "to be transposed": "True",
+    "use cols": "B:P",
+    "nrows": 12,
+    "date parser": [
+        "%B %y"
+    ],
+    "skip row": {
+        "bf header": 8,
+        "af header": 1
+    },
+    "encoding": "ascii",
+    "decimal": "."
+}
