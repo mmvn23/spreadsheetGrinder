@@ -177,27 +177,38 @@ class DataMatrix(BaseDataset):
 
     def load_dataframe_from_family(self, base_dataset_family_name, any_stp_dict, any_mtx_nomenclature=var_gen.void,
                                    any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void,
-                                   treat_date=True):
+                                   treat_date=True, load_all_files_within_folder=True,
+                                   load_all_sheets_on_spreadsheet=False, key_clmn=''):
         any_raw_dataset = RawDataset.load_from_json(base_dataset_family_name, root=any_stp_dict[dct.root_folder],
                                                     folder=any_stp_dict[dct.json_folder])
-        any_raw_dataset.filepath = ut.remove_file_name_from_filepath(filepath=any_raw_dataset.filepath,
-                                                                     sub_str=var_gen.folder_separator)
-        file_name_list = ut.get_file_list_from_directory(any_raw_dataset.filepath)
-        any_raw_dataset_list = any_raw_dataset.create_list_of_copied_base_datasets(n_elements=len(file_name_list))
-        # any_raw_dataset_list = RawDataset.adjust_name_and_filepath_on_raw_dataset_family(any_raw_dataset_list,
-        #                                                                                  file_name_list)
-        any_raw_dataset_list = BaseDataset.adjust_name_on_base_dataset_list(any_raw_dataset_list, file_name_list)
+
+        if load_all_files_within_folder:
+            any_raw_dataset.filepath = ut.remove_file_name_from_filepath(filepath=any_raw_dataset.filepath,
+                                                                         sub_str=var_gen.folder_separator)
+            file_name_list = ut.get_file_list_from_directory(any_raw_dataset.filepath)
+            n_elements = len(file_name_list)
+            any_raw_dataset_list = any_raw_dataset.create_list_of_copied_base_datasets(n_elements=n_elements)
+            any_raw_dataset_list = BaseDataset.adjust_name_on_base_dataset_list(any_raw_dataset_list, file_name_list)
+            any_raw_dataset_list = BaseDataset.adjust_filepath_on_base_dataset_list(any_raw_dataset_list, file_name_list)
+
+        elif load_all_sheets_on_spreadsheet:
+            sheet_list = ut.get_sheet_list_from_spreadsheet(any_raw_dataset.filepath)
+            n_elements = len(sheet_list)
+
+            any_raw_dataset_list = any_raw_dataset.create_list_of_copied_base_datasets(n_elements=n_elements)
+            any_raw_dataset_list = BaseDataset.adjust_sheet_on_base_dataset_list(any_raw_dataset_list, sheet_list)
 
         for any_raw_dataset in any_raw_dataset_list:
             any_raw_dataset.load_dataframe(treat_date)
             self.dataframe = pd.concat([self.dataframe, any_raw_dataset.dataframe])
-            self.consolidate_date()
-            self.apply_nomenclature(any_mtx_nomenclature)
-            self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number)
-            self.apply_standard_index()
-            self.add_timestamp()
-            self.assure_column_integrity()
-            self.remove_duplicated_index()
+
+        # self.consolidate_date()
+        self.apply_nomenclature(any_mtx_nomenclature)
+        self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number, key_clmn)
+        self.apply_standard_index()
+        self.add_timestamp()
+        self.assure_column_integrity()
+        self.remove_duplicated_index()
 
         return
 

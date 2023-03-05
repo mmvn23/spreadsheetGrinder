@@ -8,15 +8,15 @@ def load_part_number(any_stp_dict):
                                                        root=any_stp_dict[dct.root_folder],
                                                        folder=any_stp_dict[dct.json_folder])
     mtx_nomenclature = Matrix.DataMatrix.load_old_object('nomenclature', any_stp_dict)
-    # mtx_part_number.load_dataframe(any_raw_dataset_name_list=['part_number_glass'],
-    #                                any_mtx_nomenclature=mtx_nomenclature,
-    #                                root_json=any_stp_dict[dct.root_folder],
-    #                                folder_json=any_stp_dict[dct.json_folder])
-    mtx_part_number.load_dataframe(any_raw_dataset_name_list=['part_number_grain', 'part_number_whisky',
-                                                              'part_number_gns', 'part_number_sweeteners'],
+    mtx_part_number.load_dataframe(any_raw_dataset_name_list=['part_number_glass'],
                                    any_mtx_nomenclature=mtx_nomenclature,
                                    root_json=any_stp_dict[dct.root_folder],
                                    folder_json=any_stp_dict[dct.json_folder])
+    # mtx_part_number.load_dataframe(any_raw_dataset_name_list=['part_number_grain', 'part_number_whisky',
+    #                                                           'part_number_gns', 'part_number_sweeteners'],
+    #                                any_mtx_nomenclature=mtx_nomenclature,
+    #                                root_json=any_stp_dict[dct.root_folder],
+    #                                folder_json=any_stp_dict[dct.json_folder])
     mtx_part_number.write(any_stp_dict, save_dataframe=True, save_error=True)
 
     return

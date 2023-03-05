@@ -29,10 +29,10 @@ def load_nomenclature(any_stp_dict):
     mtx_nomenclature = Matrix.DataMatrix.load_from_json(name='nomenclature',
                                                         root=any_stp_dict[dct.root_folder],
                                                         folder=any_stp_dict[dct.json_folder])
-    mtx_nomenclature.load_dataframe(any_raw_dataset_name_list=['nomenclature_location', 'nomenclature_uom',
-                                                               'nomenclature_category'],
-                                    root_json=any_stp_dict[dct.root_folder],
-                                    folder_json=any_stp_dict[dct.json_folder])
+    mtx_nomenclature.load_dataframe_from_family(base_dataset_family_name='nomenclature_raw',
+                                                any_stp_dict=any_stp_dict,
+                                                treat_date=False, load_all_files_within_folder=False,
+                                                load_all_sheets_on_spreadsheet=True)
     mtx_nomenclature = add_new_terms(mtx_nomenclature)
     mtx_nomenclature.prepare_string_clmn_for_merge(any_column=clmn.term_before_nomenclature, reset_index=True)
     mtx_nomenclature.remove_duplicated_index()
@@ -45,4 +45,5 @@ if __name__ == "__main__":
     pd.set_option('display.max_columns', 10)
     pd.set_option('display.max_rows', 500)
     load_nomenclature(stp_dct.setup_dict)
+
 

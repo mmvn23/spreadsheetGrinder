@@ -47,8 +47,12 @@ def get_value_from_dataframe(input_dataframe, target_column_list, column_list_to
     return value
 
 
-def get_filepath(root, folder, file, any_format):
-    any_filepath = root + '/' + folder + '/' + file + '.' + any_format
+def get_filepath(root, folder, file, any_format, use_root=True):
+    if use_root:
+        any_filepath = root + '/' + folder + '/' + file + '.' + any_format
+    else:
+        any_filepath = folder + '/' + file + '.' + any_format
+
     any_filepath = treat_filepath(any_filepath)
     return any_filepath
 
@@ -328,6 +332,12 @@ def remove_file_name_from_filepath(filepath, sub_str):
 
 def get_file_list_from_directory(filepath):
     return os.listdir(filepath)
+
+
+def get_sheet_list_from_spreadsheet(filepath):
+    # new_filepath = get_filepath(root='', folder=filepath, file=name, any_format=format, use_root=False)
+
+    return pd.ExcelFile(filepath).sheet_names
 
 
 def get_datamatrix_name(name):

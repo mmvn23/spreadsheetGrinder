@@ -399,7 +399,6 @@ class BaseDataset:
     def adjust_name_on_base_dataset_list(any_base_dataset_list, term_list,
                                          separator=variables.general.folder_separator):
         ii = 0
-        original_filepath = copy.deepcopy(any_base_dataset_list[ii].filepath)
         original_name = any_base_dataset_list[0].name
 
         for any_base_dataset in any_base_dataset_list:
@@ -413,9 +412,50 @@ class BaseDataset:
                 pass
 
             any_base_dataset.name = original_name + separator + term_list[ii]
+
+            ii = ii + 1
+
+        return any_base_dataset_list
+
+    @staticmethod
+    def adjust_filepath_on_base_dataset_list(any_base_dataset_list, term_list,
+                                         separator=variables.general.folder_separator):
+        ii = 0
+        original_filepath = copy.deepcopy(any_base_dataset_list[ii].filepath)
+
+        for any_base_dataset in any_base_dataset_list:
+            try:
+                any_base_dataset.source_dict = ut.assign_type_to_dict({dct.name: term_list[ii],
+                                                                      dct.my_timestamp: any_base_dataset.source_dict[
+                                                                          dct.my_timestamp]},
+                                                          [tp.my_string, tp.my_date], date_parser=[
+                        variables.general.date_parser_to_save])
+            except AttributeError:
+                pass
+
             any_base_dataset.filepath = ut.append_filepath(original_filepath, separator, term=term_list[ii])
-            # any_base_dataset.filepath = ut.treat_filepath(original_filepath + separator
-            #                                               + term_list[ii])
+
+            ii = ii + 1
+
+        return any_base_dataset_list
+
+    @staticmethod
+    def adjust_sheet_on_base_dataset_list(any_base_dataset_list, term_list):
+        ii = 0
+        original_filepath = copy.deepcopy(any_base_dataset_list[ii].filepath)
+
+        for any_base_dataset in any_base_dataset_list:
+            try:
+                any_base_dataset.source_dict = ut.assign_type_to_dict({dct.name: term_list[ii],
+                                                                      dct.my_timestamp: any_base_dataset.source_dict[
+                                                                          dct.my_timestamp]},
+                                                          [tp.my_string, tp.my_date], date_parser=[
+                        variables.general.date_parser_to_save])
+            except AttributeError:
+                pass
+
+            any_base_dataset.sheet = term_list[ii]
+
             ii = ii + 1
 
         return any_base_dataset_list
