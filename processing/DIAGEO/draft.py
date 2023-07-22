@@ -4,9 +4,13 @@ from processing.DIAGEO.pre_loading import pre_load_objects
 from processing.DIAGEO.nomenclature import load_nomenclature
 from processing.DIAGEO.uom_conversion import load_uom_conversion
 from processing.DIAGEO.part_number import load_part_number
+from processing.DIAGEO.vendor import load_vendor
 from processing.DIAGEO.activity import load_activity
+from processing.DIAGEO.transportation_activity import load_transportation_activity
 from processing.DIAGEO.part_number_to_activity import load_part_number_to_activity
+from processing.DIAGEO.mat_code_to_supplier_location import load_mat_code_to_supplier_location
 from processing.DIAGEO.ppv import load_ppv
+from processing.DIAGEO.emission_factor import load_emission_factor
 import variables.dict as dct
 import variables.DIAGEO_setup.my_dict as stp_dct
 from Dataset import Base,Raw, Matrix
@@ -15,15 +19,21 @@ import variables.var_column as clmn
 pre_load_objects(stp_dct.setup_dict)
 load_nomenclature(stp_dct.setup_dict)
 load_uom_conversion(stp_dct.setup_dict)
-load_part_number(stp_dct.setup_dict)
+# load_part_number(stp_dct.setup_dict)
+# load_vendor(stp_dct.setup_dict)
 # load_activity(stp_dct.setup_dict)
+# load_mat_code_to_supplier_location(stp_dct.setup_dict)
 # load_part_number_to_activity(stp_dct.setup_dict)
+# load_emission_factor(any_stp_dict=stp_dct.setup_dict)
+load_transportation_activity(any_stp_dict=stp_dct.setup_dict)
+
 #
-load_volume(any_stp_dict=stp_dct.setup_dict,
-            previous_archive_volume_to_be_loaded=dash.previous_archive_volume_to_be_loaded,
-            archive_initial_date=dash.archive_initial_date,
-            actual_initial_date=dash.actual_initial_date,
-            actual_end_date=dash.actual_end_date)
+# load_volume(any_stp_dict=stp_dct.setup_dict,
+#             previous_archive_volume_to_be_loaded=dash.previous_archive_volume_to_be_loaded,
+#             archive_initial_date=dash.archive_initial_date,
+#             actual_initial_date=dash.actual_initial_date,
+#             actual_end_date=dash.actual_end_date)
+
 
 
 

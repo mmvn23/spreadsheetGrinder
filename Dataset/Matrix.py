@@ -53,26 +53,36 @@ class DataMatrix(BaseDataset):
                                                                                    setup_clmn_list_for_clmn_info=
                                                                          [variables.setup_column.dataset_name,
                                                                           variables.setup_column.row,
-                                                                          variables.setup_column.clmn1,
-                                                                          variables.setup_column.clmn2,
-                                                                          variables.setup_column.clmn3,
-                                                                          variables.setup_column.clmn4,
-                                                                          variables.setup_column.clmn5,
-                                                                          variables.setup_column.clmn6,
-                                                                          variables.setup_column.clmn7,
-                                                                          variables.setup_column.clmn8,
-                                                                          variables.setup_column.clmn9,
-                                                                          variables.setup_column.clmn10,
-                                                                          variables.setup_column.clmn11,
-                                                                          variables.setup_column.clmn12,
-                                                                          variables.setup_column.clmn13,
-                                                                          variables.setup_column.clmn14,
-                                                                          variables.setup_column.clmn15,
-                                                                          variables.setup_column.clmn16,
-                                                                          variables.setup_column.clmn17,
-                                                                          variables.setup_column.clmn18,
-                                                                          variables.setup_column.clmn19,
-                                                                          variables.setup_column.clmn20],
+                                                                          stp_clmn.clmn1,
+                                                                          stp_clmn.clmn2,
+                                                                          stp_clmn.clmn3,
+                                                                          stp_clmn.clmn4,
+                                                                          stp_clmn.clmn5,
+                                                                          stp_clmn.clmn6,
+                                                                          stp_clmn.clmn7,
+                                                                          stp_clmn.clmn8,
+                                                                          stp_clmn.clmn9,
+                                                                          stp_clmn.clmn10,
+                                                                          stp_clmn.clmn11,
+                                                                          stp_clmn.clmn12,
+                                                                          stp_clmn.clmn13,
+                                                                          stp_clmn.clmn14,
+                                                                          stp_clmn.clmn15,
+                                                                          stp_clmn.clmn16,
+                                                                          stp_clmn.clmn17,
+                                                                          stp_clmn.clmn18,
+                                                                          stp_clmn.clmn19,
+                                                                          stp_clmn.clmn20,
+                                                                          stp_clmn.clmn21,
+                                                                          stp_clmn.clmn22,
+                                                                          stp_clmn.clmn23,
+                                                                          stp_clmn.clmn24,
+                                                                          stp_clmn.clmn25,
+                                                                          stp_clmn.clmn26,
+                                                                          stp_clmn.clmn27,
+                                                                          stp_clmn.clmn28,
+                                                                          stp_clmn.clmn29,
+                                                                          stp_clmn.clmn30],
                                                                                    any_df_column=df_column)
             any_datamatrix_list = any_datamatrix_list + [any_datamatrix_to_append]
 
@@ -162,9 +172,12 @@ class DataMatrix(BaseDataset):
     def load_dataframe(self, any_raw_dataset_name_list, root_json, folder_json, key_clmn='',
                        any_mtx_nomenclature=var_gen.void,
                        any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void,
-                       treat_date=True):
+                       treat_date=True, any_raw_dataset_list=[]):
         self.load_dataframe_from_raw_dataset_list(any_raw_dataset_name_list, treat_date=treat_date,
                                                   root_json=root_json, folder_json=folder_json)
+        if len(any_raw_dataset_list) > 0:
+            self.concat_base_dataset_list(any_basedataset_list=any_raw_dataset_list)
+
         self.consolidate_date()
         # clean string for material codes
         self.apply_nomenclature(any_mtx_nomenclature)
@@ -178,7 +191,7 @@ class DataMatrix(BaseDataset):
     def load_dataframe_from_family(self, base_dataset_family_name, any_stp_dict, any_mtx_nomenclature=var_gen.void,
                                    any_mtx_uom_conversion=var_gen.void, any_mtx_part_number=var_gen.void,
                                    treat_date=True, load_all_files_within_folder=True,
-                                   load_all_sheets_on_spreadsheet=False, key_clmn=''):
+                                   load_all_sheets_on_spreadsheet=False, key_clmn='', run_auto_etl=True):
         any_raw_dataset = RawDataset.load_from_json(base_dataset_family_name, root=any_stp_dict[dct.root_folder],
                                                     folder=any_stp_dict[dct.json_folder])
 
@@ -203,12 +216,13 @@ class DataMatrix(BaseDataset):
             self.dataframe = pd.concat([self.dataframe, any_raw_dataset.dataframe])
 
         # self.consolidate_date()
-        self.apply_nomenclature(any_mtx_nomenclature)
-        self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number, key_clmn)
-        self.apply_standard_index()
-        self.add_timestamp()
-        self.assure_column_integrity()
-        self.remove_duplicated_index()
+        if run_auto_etl:
+            self.apply_nomenclature(any_mtx_nomenclature)
+            self.apply_uom_conversion_to_si(any_mtx_uom_conversion, any_mtx_part_number, key_clmn)
+            self.apply_standard_index()
+            self.add_timestamp()
+            self.assure_column_integrity()
+            self.remove_duplicated_index()
 
         return
 
@@ -279,7 +293,7 @@ class DataMatrix(BaseDataset):
         mtx_numerator.convert_uom(any_clmn=numerator_value_clmn, numerator_dict={dct.any_mtx_conversion: any_mtx_uom_conversion,
                                                                                  dct.old_uom: numerator_uom_clmn,
                                                                                  dct.new_uom: new_uom_clmn}, denominator_dict={})
-        print('MTX 242')
+
         mtx_denominator.drop_column_list(column_list=[numerator_code_clmn, denominator_code_clmn,
                                                       denominator_value_clmn, denominator_uom_clmn],
                                          drop_column_list=False, keep_column_list=True, reset_index=True)
@@ -324,6 +338,7 @@ class DataMatrix(BaseDataset):
                          denominator_dict={})
 
         self.rename_column_list(old_clmn_list=[clmn.uom, clmn.si_uom], new_clmn_list=['input uom', clmn.uom])
+
         return
 
     def apply_types(self, standard_column_list=[], type_list=[]):
@@ -390,17 +405,26 @@ class DataMatrix(BaseDataset):
         return
 
     def apply_nomenclature_to_column(self, any_mtx_nomenclature, any_column):
+        reset_left_index=self.is_index_standard()
         self.prepare_string_clmn_for_merge(any_column=any_column, reset_index=False, assure_column_integrity=False)
         self.merge_dataframe(original_right_dataset=any_mtx_nomenclature,
                              desired_column_list=[clmn.term_after_nomenclature], left_on_list=[any_column],
                              right_on_list=[clmn.term_before_nomenclature],
-                             reset_left_index=False, reset_right_index=True)
+                             reset_left_index=reset_left_index, reset_right_index=True)
+
         self.drop_column_list(column_list=[any_column], drop_column_list=True, reset_index=False)
         self.rename_column_list(old_clmn_list=[clmn.term_after_nomenclature], new_clmn_list=[any_column])
-        df_error_to_concat, self.dataframe = self.filter_nan_dataframe(any_column=any_column,
-                                                                       error_message=
-                                                                              err_msg.nomenclature + any_column)
-        self.df_error = pd.concat([self.df_error, df_error_to_concat])
+
+        # df_error_to_concat, self.dataframe = self.filter_nan_dataframe(any_column=any_column,
+        #                                                                error_message=
+        #                                                                       err_msg.nomenclature + any_column)
+        #
+        # if len(df_error_to_concat) > 0:
+        #     try:
+        #         self.df_error = pd.concat([self.df_error, df_error_to_concat])
+        #     except pd.errors.InvalidIndexError:
+        #         print('ERROR in concat df_error')
+
         return
 
     def add_timestamp(self):
@@ -498,8 +522,6 @@ class DataMatrix(BaseDataset):
 def write_base_dataset_list(any_base_dataset_list, any_stp_dict):
 
     for any_base_dataset in any_base_dataset_list:
-        print('BASE 366')
-        print(any_base_dataset.filepath)
         any_base_dataset.write(any_stp_dict, save_dataframe=True, save_error=True)
 
     return any_base_dataset_list

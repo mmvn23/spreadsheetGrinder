@@ -277,7 +277,18 @@ class RawDataset(BaseDataset):
                                                                           stp_clmn.clmn17,
                                                                           stp_clmn.clmn18,
                                                                           stp_clmn.clmn19,
-                                                                          stp_clmn.clmn20],
+                                                                          stp_clmn.clmn20,
+                                                                          stp_clmn.clmn21,
+                                                                          stp_clmn.clmn22,
+                                                                          stp_clmn.clmn23,
+                                                                          stp_clmn.clmn24,
+                                                                          stp_clmn.clmn25,
+                                                                          stp_clmn.clmn26,
+                                                                          stp_clmn.clmn27,
+                                                                          stp_clmn.clmn28,
+                                                                          stp_clmn.clmn29,
+                                                                          stp_clmn.clmn30
+                                                                          ],
                                                                                     any_df_column=df_column)
 
             any_raw_dataset_list = any_raw_dataset_list + [any_raw_dataset_to_append]
@@ -285,18 +296,47 @@ class RawDataset(BaseDataset):
         return any_raw_dataset_list
 
 # load dataframe
-    def load_dataframe(self, treat_date=True):
-        self.load_dataframe_from_spreadsheet()
+    def load_dataframe(self, treat_date=True, load_from_spreadsheet=True, load_manually_from_dataframe=False,
+                       dataframe_list=[]):
+        if load_manually_from_dataframe:
+            self.concat_dataframe_list(dataframe_list)
+            input_column_list, standard_column_list, position_clmn_list, rename_dict = \
+                self.get_input_and_standard_column_lists(input_strategy=in_stg.spreadsheet_clmn_names)
+            self.rename_column_list(old_clmn_list=input_column_list, new_clmn_list=standard_column_list)
+
+
+            # self.load_dataframe_from_raw_dataset_list(any_raw_dataset_name_list, treat_date=treat_date,
+            #                                           root_json=root_json, folder_json=folder_json)
+
+        if load_from_spreadsheet:
+            self.load_dataframe_from_spreadsheet()
+
+        self.melt_input_dataframe()
         self.fill_missing_information()
 
         if treat_date:
             self.prepare_string_to_mask_date_parsing()
         self.handle_nan()
+
         self.apply_types()
         self.apply_multiplication()
         self.clean_string()
         self.drop_column_list(keep_column_list=True)
         self.fill_source_info()
+        return
+
+    def melt_input_dataframe(self):
+        input_column_list, id_clmn_list, position_clmn_list, rename_dict = \
+            self.get_input_and_standard_column_lists(in_stg.spreadsheet_clmn_names_melt_id_vars)
+        input_column_list, value_clmn_list_as_string, position_clmn_list, rename_dict = \
+            self.get_input_and_standard_column_lists(in_stg.spreadsheet_clmn_names_melt_value_vars)
+
+        if len(value_clmn_list_as_string) > 0:
+            [var_name_clmn, value_name_clmn] = value_clmn_list_as_string[0].split(variables.general.split_char)
+            self.melt_dataframe(id_vars=id_clmn_list,
+                                value_vars=ut.get_difference_between_two_lists(li1=self.get_current_column_list(),
+                                                                               li2=id_clmn_list),
+                                var_name=var_name_clmn, value_name=value_name_clmn)
         return
 
     def prepare_string_to_mask_date_parsing(self):
@@ -557,6 +597,12 @@ class RawDataset(BaseDataset):
         self.load_dataframe_from_spreadsheet_position(input_strategy=in_stg.spreadsheet_clmn_position, transpose=False)
         self.load_dataframe_from_spreadsheet_names(input_strategy=in_stg.spreadsheet_row_names, transpose=True)
         self.load_dataframe_from_spreadsheet_position(input_strategy=in_stg.spreadsheet_row_position, transpose=True)
+        self.load_dataframe_from_spreadsheet_clmn_names_melt_id_vars(input_strategy=
+                                                                     in_stg.spreadsheet_clmn_names_melt_id_vars,
+                                                                     transpose=False)
+        self.load_dataframe_from_spreadsheet_clmn_names_melt_value_vars(input_strategy=
+                                                                        in_stg.spreadsheet_clmn_names_melt_value_vars,
+                                                                        transpose=False)
         return
 
     def get_input_and_standard_column_lists(self, input_strategy):
@@ -618,7 +664,7 @@ class RawDataset(BaseDataset):
 
         return
 
-    def load_from_spreadsheet_position_excel(self, input_strategy, transpose):
+    def load_from_spreadsheet_position_excel(self, input_strategy, transpose, rename_column=True):
         input_column_list, standard_column_list, position_column_list, rename_dict = \
             self.get_input_and_standard_column_lists(input_strategy)
         if len(standard_column_list) > 0:
@@ -626,7 +672,7 @@ class RawDataset(BaseDataset):
             for any_position in position_column_list:
                 input_column = standard_column_list[ii]
                 df_to_append = self.load_from_spreadsheet_position_excel_by_position(any_position, input_column,
-                                                                                     transpose)
+                                                                                     transpose, rename_column)
                 if len(self.dataframe.index) == 0:
                     self.dataframe = copy.deepcopy(df_to_append)
                 else:
@@ -636,7 +682,8 @@ class RawDataset(BaseDataset):
 
         return
 
-    def load_from_spreadsheet_position_excel_by_position(self, any_position, input_column, transpose):
+    def load_from_spreadsheet_position_excel_by_position(self, any_position, input_column, transpose,
+                                                         rename_column=True):
         if transpose:
             usecols = self.usecols
             skiprows = int(any_position) - 1
@@ -650,16 +697,40 @@ class RawDataset(BaseDataset):
             header = 0
             nrows = self.nrows
 
-        df_to_append = pd.read_excel(io=self.filepath, sheet_name=self.sheet, usecols=usecols,
-                                     engine='openpyxl', skiprows=skiprows,
-                                     names=names, header=header,
-                                     nrows=nrows, date_parser=self.date_parser_list, decimal=self.decimal)
-
+        if rename_column:
+            df_to_append = pd.read_excel(io=self.filepath, sheet_name=self.sheet, usecols=usecols,
+                                         engine='openpyxl', skiprows=skiprows,
+                                         names=names, header=header,
+                                         nrows=nrows, date_parser=self.date_parser_list, decimal=self.decimal)
+        else:
+            df_to_append = pd.read_excel(io=self.filepath, sheet_name=self.sheet, usecols=usecols,
+                                         engine='openpyxl', skiprows=skiprows, header=header,
+                                         nrows=nrows, date_parser=self.date_parser_list, decimal=self.decimal)
         if transpose:
             df_to_append.set_index(1, inplace=True)
             df_to_append = df_to_append.T
             df_to_append.rename({list(df_to_append.columns)[0]: input_column}, axis=1, inplace=True)
         return df_to_append
+
+    def load_dataframe_from_spreadsheet_clmn_names_melt_id_vars(self, input_strategy, transpose):
+        if self.format == fmt.csv:
+            print('csv not yet developed')
+        elif self.format == fmt.xlsx:
+            self.load_from_spreadsheet_names_excel(transpose, input_strategy)
+        else:
+            print(self.format + ' not yet developed')
+
+        return
+
+    def load_dataframe_from_spreadsheet_clmn_names_melt_value_vars(self, input_strategy, transpose):
+        if self.format == fmt.csv:
+            print('csv not yet developed')
+        elif self.format == fmt.xlsx:
+            self.load_from_spreadsheet_position_excel(input_strategy, transpose, rename_column=False)
+        else:
+            print(self.format + ' not yet developed')
+
+        return
 
     # @staticmethod
     # def adjust_name_and_filepath_on_raw_dataset_family(any_raw_dataset_list, file_name_list):

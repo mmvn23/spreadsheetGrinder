@@ -29,6 +29,7 @@ def load_uom_conversion(any_stp_dict):
     mtx_uom_conversion.load_dataframe(any_raw_dataset_name_list=['uom_length', 'uom_area', 'uom_volume',
                                                                  'uom_fuel_efficiency', 'uom_mass', 'uom_density',
                                                                  'uom_mass_concentration', 'uom_energy',
+                                                                 'uom_emissions',
                                                                  'uom_material_specific_grain',
                                                                  'uom_material_specific_container',
                                                                  'uom_material_specific_liquids',

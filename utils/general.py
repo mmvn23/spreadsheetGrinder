@@ -157,7 +157,7 @@ def convert_timestamp_to_str(mytimestamp, date_parser):
 
 def get_date_from_month_and_period(month_day, period, fiscal_year):
     if pd.isnull(month_day):
-        date = get_date_from_period_fiscal_year(period, fiscal_year)
+        date = get_initial_date_from_period_fiscal_year(period, fiscal_year)
     elif pd.isnull(period):
         date = get_date_from_month_fiscal_year(month_day, fiscal_year)
     else:
@@ -165,16 +165,20 @@ def get_date_from_month_and_period(month_day, period, fiscal_year):
     return date
 
 
-def get_date_from_period_fiscal_year(period, fiscal_year):
+def get_initial_date_from_period_fiscal_year(period, fiscal_year):
 
     if period <= 6:
         month = period + 6
         year = 2000 + fiscal_year - 1
     else:
         month = period - 6
-        year = 2000 + fiscal_year + 1
+        year = 2000 + fiscal_year
 
     return pd.Timestamp(freq='M', year=int(year), month=int(month), day=1)
+
+
+def get_end_date_from_period_fiscal_year(period, fiscal_year):
+    return get_initial_date_from_period_fiscal_year(period, fiscal_year+1) - pd.DateOffset(days=1)
 
 
 def get_date_from_month_fiscal_year(date_month, fiscal_year):
@@ -235,6 +239,23 @@ def substitute_term_from_string(original_value, target_list, df_substitution=pd.
     return any_value
 
 
+def remove_space_on_list_of_expressions(original_list, original_text):
+    text = copy.deepcopy(original_text)
+
+    for any_element in original_list:
+        text = text.replace(any_element, any_element.replace(' ',''))
+
+    return text
+
+
+def remove_list_of_expressions(original_list, text):
+
+    for any_element in original_list:
+        text = text.replace(any_element, '')
+
+    return text
+
+
 def trim_string(original_value):
     try:
         any_value = original_value.strip()
@@ -258,6 +279,23 @@ def trim_and_lower_string(original_value):
     any_value = trim_string(original_value)
     any_value = lower_string(any_value)
     return any_value
+
+
+def cut_string_based_on_tag(original_text, tag, max_cuts=0):
+    text = copy.deepcopy(original_text)
+    cut_count = text.count(tag)
+
+    if max_cuts != 0:
+        cut_count = min(cut_count, max_cuts)
+
+    ii = 0
+    while ii < cut_count:
+        position = text.find(tag)
+        text = text[position + len(tag):]
+        ii = ii + 1
+
+    text = text.strip()
+    return text
 
 
 def get_multiplier_from_mtx_conversion(any_mtx_conversion, original, new, part_number):
@@ -358,3 +396,22 @@ def append_filepath(original_filepath, separator, term):
         print(new_filepath)
     return new_filepath
 
+
+def get_difference_between_two_lists(li1, li2):
+    set_dif = set(li1).symmetric_difference(set(li2))
+
+    return list(set_dif)
+
+
+def are_lists_equal(li1, li2):
+    li3 = get_difference_between_two_lists(li1, li2)
+    are_equal = len(li3) == 0
+    return are_equal
+
+
+def intersection_two_lists(list1, list2):
+    set1 = set(list1)
+    set2 = set(list2)
+
+    intersection = set1 & set2
+    return intersection

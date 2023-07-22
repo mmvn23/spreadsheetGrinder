@@ -1,4 +1,5 @@
 import pandas as pd
+import PyPDF2
 # import variables.setup.file as stp
 import variables.setup_column as stp_clmn
 import variables.general
@@ -20,6 +21,18 @@ def load_xlsx(filepath, sheet_name, header, new_column_list, key_clmn_list, inde
 def load_csv(filepath):
     any_dataframe = pd.read_csv(filepath, header=0, encoding=variables.general.encoding_to_save)
     return any_dataframe
+
+
+def load_text_from_pdf(filepath):
+
+    with open(filepath, 'rb') as pdfFile:
+        pdfReader = PyPDF2.PdfReader(pdfFile)
+        totalPages = len(pdfReader.pages)
+        any_text_list = []
+        for ii in range(0, totalPages):
+            any_text_list = any_text_list + [pdfReader.pages[ii].extract_text()]
+
+    return any_text_list
 
 
 def prepare_df_column_setup(dataset_name, any_df_setup, setup_clmn_list_for_clmn_info, any_df_column):

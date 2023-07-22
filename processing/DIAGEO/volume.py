@@ -54,6 +54,7 @@ def load_volume(actual_initial_date, any_stp_dict, previous_archive_volume_to_be
     #     mtx_volume.concat_base_dataset(mtx_volume_archive)
 
     if mtx_volume.get_row_number() > 0:
+        mtx_volume.assure_column_integrity()
         mtx_volume.write(any_stp_dict, save_dataframe=True, save_error=True)
 
     return
