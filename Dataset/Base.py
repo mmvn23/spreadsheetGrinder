@@ -91,14 +91,12 @@ class BaseDataset:
             self.assure_column_integrity()
         return
 
-    def apply_uom_conversion_to_column(self, any_column, numerator_dict, denominator_dict={},
-                                       constant_uom_multiplier=False):
+    def apply_uom_conversion_to_column(self, any_column, numerator_dict, denominator_dict={}):
         # numerator_dict = {dct.any_mtx_item: any_mtx_item, empty_dataframe if new uom already in the dataframe
         #                   dct.any_mtx_conversion: any_mtx_uom_conversion,
         #                   dct.key_clmn: clmn.part_number_code;
         #                   dct.old_uom: 'a',
         #                   dct.new_uom: 'b'}
-        # constant_uom_multiplier as FALSE if you want to have different multipliers by row
         numerator_dict[dct.any_mtx_item].remove_index()
         temp_uom_numerator_clmn = 'temp_uom_numerator_clmn'
         temp_uom_denominator_clmn = 'temp_uom_denominator_clmn'
@@ -132,14 +130,13 @@ class BaseDataset:
                 denominator_dict[dct.new_uom] = denominator_dict[dct.old_uom]
                 denominator_dict[dct.old_uom] = temp_uom_denominator_clmn
 
-        self.convert_uom(any_clmn=any_column, numerator_dict=numerator_dict, denominator_dict=denominator_dict,
-                         constant_uom_multiplier=constant_uom_multiplier)
+        self.convert_uom(any_clmn=any_column, numerator_dict=numerator_dict, denominator_dict=denominator_dict)
         self.apply_standard_index()
         # self.assure_column_integrity()
 
         return
 
-    def convert_uom(self, any_clmn, numerator_dict, denominator_dict, constant_uom_multiplier=False):
+    def convert_uom(self, any_clmn, numerator_dict, denominator_dict):
         # numerator_dict = {dct.any_mtx_item: any_mtx_item, empty_dataframe if new uom already in the dataframe
         #                   dct.any_mtx_conversion: any_mtx_uom_conversion,
         #                   dct.old_uom: 'a',
@@ -151,16 +148,14 @@ class BaseDataset:
                                 multiplier_clmn=temp_multiplier_numerator,
                                 original_clmn=numerator_dict[dct.old_uom],
                                 new_clmn=numerator_dict[dct.new_uom],
-                                key_clmn=numerator_dict[dct.key_clmn],
-                                constant_uom_multiplier=constant_uom_multiplier)
+                                key_clmn=numerator_dict[dct.key_clmn])
 
         if len(denominator_dict) > 0:
             self.add_uom_multiplier(any_mtx_conversion=denominator_dict[dct.any_mtx_conversion],
                                     multiplier_clmn=temp_multiplier_denominator,
                                     original_clmn=denominator_dict[dct.old_uom],
                                     new_clmn=denominator_dict[dct.new_uom],
-                                    key_clmn=denominator_dict[dct.key_clmn],
-                                    constant_uom_multiplier=constant_uom_multiplier)
+                                    key_clmn=denominator_dict[dct.key_clmn])
         else:
             self.dataframe[temp_multiplier_denominator] = 1
 
@@ -187,26 +182,14 @@ class BaseDataset:
 
     # refactor hard coded
     def add_uom_multiplier(self, any_mtx_conversion, multiplier_clmn, original_clmn, new_clmn,
-                           key_clmn=clmn.part_number_code, constant_uom_multiplier=False):
+                           key_clmn=clmn.part_number_code):
 
-        if constant_uom_multiplier:
-            original_uom = ut.get_column_info_of_first_row_as_scalar_for_specific_column(self.dataframe,
-                                                                                         column_name=original_clmn)
-            new_uom = ut.get_column_info_of_first_row_as_scalar_for_specific_column(self.dataframe,
-                                                                                    column_name=new_clmn)
-            key_value = ut.get_column_info_of_first_row_as_scalar_for_specific_column(self.dataframe,
-                                                                                      column_name=key_clmn)
-
-            self.dataframe[multiplier_clmn] = ut.get_multiplier_from_mtx_conversion(
-                any_mtx_conversion=any_mtx_conversion, original=original_uom, new=new_uom, part_number=key_value)
-
-        else:
-            self.dataframe[multiplier_clmn] = self.dataframe.apply(lambda row: ut.get_multiplier_from_mtx_conversion(
-                                                                                   any_mtx_conversion=any_mtx_conversion,
-                                                                                   original=row[original_clmn],
-                                                                                   new=row[new_clmn],
-                                                                                   part_number=row[key_clmn]),
-                                                                                axis=1)
+        self.dataframe[multiplier_clmn] = self.dataframe.apply(lambda row: ut.get_multiplier_from_mtx_conversion(
+                                                                               any_mtx_conversion=any_mtx_conversion,
+                                                                               original=row[original_clmn],
+                                                                               new=row[new_clmn],
+                                                                               part_number=row[key_clmn]),
+                                                                            axis=1)
         return
 
 # NEO PANDAS
@@ -526,7 +509,7 @@ class BaseDataset:
             except AttributeError:
                 pass
 
-            any_base_dataset.sheet_list = [term_list[ii]]
+            any_base_dataset.sheet = term_list[ii]
 
             ii = ii + 1
 

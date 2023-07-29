@@ -14,7 +14,6 @@ import variables.format as fmt
 import variables.input_strategy as in_stg
 import variables.nan_handling_strategy as nan_hd
 import variables.date_treatment as date_treat
-import variables.error_message as err_msg
 import json
 import datetime
 
@@ -22,12 +21,12 @@ pd.set_option('display.max_columns', 100)
 
 
 class RawDataset(BaseDataset):
-    def __init__(self, name, input_filepath, sheet_list, source_name, source_timestamp, to_be_transposed, use_cols, nrows,
+    def __init__(self, name, input_filepath, sheet, source_name, source_timestamp, to_be_transposed, use_cols, nrows,
                  date_parser_list,
                  skip_row_bf_header, skip_row_af_header, spreadsheet_encoding, spreadsheet_decimal, format,
                  df_setup_for_column, mytimestamp=datetime.datetime.now()):
         super().__init__(name, input_filepath, df_setup_for_column, mytimestamp)
-        self.sheet_list = ut.assign_type_for_list(sheet_list, tp.my_string)
+        self.sheet = sheet
         self.format = ut.assign_type(format, tp.my_string) # string OK
         self.source_dict = ut.assign_type_to_dict({dct.name: source_name, dct.my_timestamp: source_timestamp},
                                                   [tp.my_string, tp.my_date], date_parser=[
@@ -73,13 +72,10 @@ class RawDataset(BaseDataset):
                                                   column_list_to_filter=[stp_clmn.dataset_name,
                                                                          stp_clmn.row],
                                                   value_list_to_filter=[dataset_name, variables.general.row_main])
-        sheet_str = ut.get_value_from_dataframe(input_dataframe=any_df_setup, target_column_list=stp_clmn.sheet,
-                                                column_list_to_filter=[stp_clmn.dataset_name,
-                                                                       stp_clmn.row],
-                                                value_list_to_filter=[dataset_name, variables.general.row_main])
-        sheet_str = ut.assign_type(sheet_str, tp.my_string)
-        sheet_list = sheet_str.split(variables.general.split_char)
-
+        sheet = ut.get_value_from_dataframe(input_dataframe=any_df_setup, target_column_list=stp_clmn.sheet,
+                                            column_list_to_filter=[stp_clmn.dataset_name,
+                                                                   stp_clmn.row],
+                                            value_list_to_filter=[dataset_name, variables.general.row_main])
         source_last_update = ut.get_value_from_dataframe(input_dataframe=any_df_setup,
                                                          target_column_list=stp_clmn.source_last_update,
                                                          column_list_to_filter=[stp_clmn.dataset_name,
@@ -155,7 +151,7 @@ class RawDataset(BaseDataset):
         df_column_setup = utils.setup.prepare_df_column_setup(dataset_name, any_df_setup, setup_clmn_list_for_clmn_info,
                                                               any_df_column)
         # get dataframe for column information
-        any_raw_dataset = RawDataset(name=dataset_name, input_filepath=any_filepath, sheet_list=sheet_list,
+        any_raw_dataset = RawDataset(name=dataset_name, input_filepath=any_filepath, sheet=sheet,
                                      source_name=source_name, source_timestamp=source_last_update,
                                      to_be_transposed=to_be_transposed, use_cols=use_cols, nrows=nrows,
                                      date_parser_list=date_parser_list,
@@ -169,7 +165,7 @@ class RawDataset(BaseDataset):
     def convert_to_dict(self, any_stp_dict):
         any_dict = {dct.name: self.name,
                     dct.filepath: self.filepath,
-                    dct.sheet: self.sheet_list,
+                    dct.sheet: self.sheet,
                     dct.my_timestamp: ut.convert_timestamp_to_str(self.mytimestamp,
                                                                   variables.general.date_parser_to_save),
                     dct.df_setup_clmn_filepath: get_dataframe_filepath(self.name, any_stp_dict,
@@ -235,7 +231,7 @@ class RawDataset(BaseDataset):
         df_column_setup = utils.setup.load_csv(df_column_setup_filepath)
 
         any_raw_dataset = RawDataset(name=any_dict[dct.name], input_filepath=any_dict[dct.filepath],
-                                     sheet_list=any_dict[dct.sheet],
+                                     sheet=any_dict[dct.sheet],
                                      mytimestamp=any_dict[dct.my_timestamp],
                                      source_name=any_dict[dct.source_dict][dct.name],
                                      source_timestamp=any_dict[dct.source_dict][dct.my_timestamp],
@@ -320,7 +316,8 @@ class RawDataset(BaseDataset):
 
         if treat_date:
             self.prepare_string_to_mask_date_parsing()
-        # self.handle_nan()
+        self.handle_nan()
+
         self.apply_types()
         self.apply_multiplication()
         self.clean_string()
@@ -496,43 +493,40 @@ class RawDataset(BaseDataset):
                                                  add_value_list_to_filter=[])
         ii = 0
         for any_standard_clmn in standard_column_list:
-
             self.apply_type_to_column(any_standard_clmn, type_list[ii])
             ii = ii + 1
         self.handle_nan()
         return
 
     def apply_type_to_column(self, any_standard_clmn, desired_type):
-        try:
-            if desired_type == tp.my_int:
+
+        if desired_type == tp.my_int:
+            self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype('int64')
+            # any_value = int(any_value)
+        elif desired_type == tp.my_float:
+            self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype('float64')
+            # any_value = float(any_value)
+        elif desired_type == tp.my_string:
+            # self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].fillna(-1)
+            if self.dataframe[any_standard_clmn].dtype == float:
                 self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype('int64')
-                # any_value = int(any_value)
-            elif desired_type == tp.my_float:
-                self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype('float64')
-                # any_value = float(any_value)
-            elif desired_type == tp.my_string:
-                # self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].fillna(-1)
-                if self.dataframe[any_standard_clmn].dtype == float:
-                    self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype('int64')
-                self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype(str)
-                # any_value = str(any_value)
-            elif desired_type == tp.my_bool:
-                # if self.dataframe[any_standard_clmn].dtype != str:
-                self.dataframe[any_standard_clmn] = self.dataframe.apply(lambda row: str(row[any_standard_clmn]).lower().
-                                                                         capitalize() == "True", axis=1)
-                # else:
-                #     self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype('bool')
-                # any_value = bool(any_value)
-            elif desired_type == tp.my_date:
-                self.dataframe[any_standard_clmn] = self.dataframe.apply(lambda row:
-                                                                         ut.parse_date_as_timestamp(row[any_standard_clmn],
-                                                                                                    self.date_parser_list),
-                                                                         axis=1)
-            else:
-                print(any_standard_clmn, desired_type)
-                raise ('ERROR: type not implemented')
-        except pd.errors.IntCastingNaNError:
-            self.dataframe[any_standard_clmn] = err_msg.type_conversion
+            self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype(str)
+            # any_value = str(any_value)
+        elif desired_type == tp.my_bool:
+            # if self.dataframe[any_standard_clmn].dtype != str:
+            self.dataframe[any_standard_clmn] = self.dataframe.apply(lambda row: str(row[any_standard_clmn]).lower().
+                                                                     capitalize() == "True", axis=1)
+            # else:
+            #     self.dataframe[any_standard_clmn] = self.dataframe[any_standard_clmn].astype('bool')
+            # any_value = bool(any_value)
+        elif desired_type == tp.my_date:
+            self.dataframe[any_standard_clmn] = self.dataframe.apply(lambda row:
+                                                                     ut.parse_date_as_timestamp(row[any_standard_clmn],
+                                                                                                self.date_parser_list),
+                                                                     axis=1)
+        else:
+            print(any_standard_clmn, desired_type)
+            raise ('ERROR: type not implemented')
 
         return
 
@@ -655,17 +649,10 @@ class RawDataset(BaseDataset):
             else:
                 header = 0
 
-            for any_sheet in self.sheet_list:
-                try:
-                    self.dataframe = pd.read_excel(io=self.filepath, sheet_name=any_sheet, usecols=self.usecols,
-                                                   engine='openpyxl', skiprows=self.skip_row_dict[dct.bf_header],
-                                                   nrows=self.nrows, date_parser=self.date_parser_list,
-                                                   decimal=self.decimal,
-                                                   header=header)
-                    break
-                except ValueError:
-                    pass
-
+            self.dataframe = pd.read_excel(io=self.filepath, sheet_name=self.sheet, usecols=self.usecols,
+                                           engine='openpyxl', skiprows=self.skip_row_dict[dct.bf_header],
+                                           nrows=self.nrows, date_parser=self.date_parser_list, decimal=self.decimal,
+                                           header=header)
             if transpose:
                 # self.dataframe.set_index(1, inplace=True)
                 self.dataframe = self.dataframe.T
@@ -711,12 +698,12 @@ class RawDataset(BaseDataset):
             nrows = self.nrows
 
         if rename_column:
-            df_to_append = pd.read_excel(io=self.filepath, sheet_name=self.sheet_list, usecols=usecols,
+            df_to_append = pd.read_excel(io=self.filepath, sheet_name=self.sheet, usecols=usecols,
                                          engine='openpyxl', skiprows=skiprows,
                                          names=names, header=header,
                                          nrows=nrows, date_parser=self.date_parser_list, decimal=self.decimal)
         else:
-            df_to_append = pd.read_excel(io=self.filepath, sheet_name=self.sheet_list, usecols=usecols,
+            df_to_append = pd.read_excel(io=self.filepath, sheet_name=self.sheet, usecols=usecols,
                                          engine='openpyxl', skiprows=skiprows, header=header,
                                          nrows=nrows, date_parser=self.date_parser_list, decimal=self.decimal)
         if transpose:

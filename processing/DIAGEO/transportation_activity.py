@@ -9,11 +9,9 @@ import variables.datamatrix as mtx
 import variables.general as var_gen
 import utils.setup as ut_stp
 import utils.general as ut_gen
-import time
 
 
 def load_transportation_activity(any_stp_dict):
-    start_time = time.time()
     # 'dhl_shipment_detail23'
     [mtx_nomenclature, mtx_uom_conversion] = Matrix.DataMatrix.load_old_object_list(['nomenclature', 'uom_conversion'],
                                                                                     any_stp_dict)
@@ -23,43 +21,23 @@ def load_transportation_activity(any_stp_dict):
                                                                    root=stp_dct.setup_dict[dct.root_folder],
                                                                    folder=stp_dct.setup_dict[dct.json_folder])
 
-    # load
-        # dhl shipment - 'dhl_shipment_detail23'
-        # dhl fleet - 'dhl_fleet_shuttle23' NOT WORKING
-        # dhl non-dhl - 'dhl_non_dhl_managed23'
-        # date parser from excel - OK
-        # ryder beer 'ryder_beer23'
-        # ryder tequila 'ryder_tequila23'
-        # glass moves 'inbound_glass23'
-    # define check protocol
-    # load from old and load from new
-    print('---------------------------------------------------------------------- TRANSPORTATION')
+    mtx_transportation_activity.load_dataframe_from_family(base_dataset_family_name='dhl_shipment_detail23',
+                                                           any_stp_dict=any_stp_dict,
+                                                           any_mtx_nomenclature=mtx_nomenclature,
+                                                           any_mtx_uom_conversion=mtx_uom_conversion,
+                                                           treat_date=False, load_all_files_within_folder=True,
+                                                           load_all_sheets_on_spreadsheet=False, run_auto_etl=False)
 
-    mtx_transportation_activity.load_dataframe_from_family_list(base_dataset_family_name_list=['dhl_shipment_detail23',
-                                                                                               'dhl_non_dhl_managed23',
-                                                                                               'ryder_tequila23',
-                                                                                               'ryder_beer23',
-                                                                                               'inbound_glass23'],
-                                                                any_stp_dict=any_stp_dict,
-                                                                any_mtx_nomenclature=mtx_nomenclature,
-                                                                any_mtx_uom_conversion=mtx_uom_conversion,
-                                                                treat_date=False, load_all_files_within_folder=True,
-                                                                load_all_sheets_on_spreadsheet=False,
-                                                                run_auto_etl=False)
-    # mtx_transportation_activity.load_dataframe_from_family_list(base_dataset_family_name_list=['inbound_glass23'],
-    #                                                             any_stp_dict=any_stp_dict,
-    #                                                             any_mtx_nomenclature=mtx_nomenclature,
-    #                                                             any_mtx_uom_conversion=mtx_uom_conversion,
-    #                                                             treat_date=False, load_all_files_within_folder=True,
-    #                                                             load_all_sheets_on_spreadsheet=False,
-    #                                                             run_auto_etl=False)
-    # mtx_transportation_activity.load_dataframe_from_family_list(base_dataset_family_name_list=['ryder_tequila22'],
-    #                                                             any_stp_dict=any_stp_dict,
-    #                                                             any_mtx_nomenclature=mtx_nomenclature,
-    #                                                             any_mtx_uom_conversion=mtx_uom_conversion,
-    #                                                             treat_date=False, load_all_files_within_folder=True,
-    #                                                             load_all_sheets_on_spreadsheet=False,
-    #                                                             run_auto_etl=False)
+    # any_raw_emission_list = load_smartway_report_list(['raw_emission_factor_smartway_20',
+    #                                                    'raw_emission_factor_smartway_21',
+    #                                                    'raw_emission_factor_smartway_22',
+    #                                                    'raw_emission_factor_smartway_23'])
+    #
+    # any_mtx_emission_factor.concat_base_dataset_list(any_basedataset_list=any_raw_emission_list)
+    # any_mtx_emission_factor.get_date_interval_from_fiscal_year(initial_date_clmn=clmn.initial_date,
+    #                                                            end_date_clmn=clmn.end_date,
+    #                                                            fiscal_year_clmn=clmn.fiscal_year)
+    # any_mtx_emission_factor.apply_nomenclature_to_column(any_column=clmn.si_uom, any_mtx_nomenclature=mtx_nomenclature)
     mtx_transportation_activity.apply_standard_index()
 
     mtx_transportation_activity.apply_nomenclature(any_mtx_nomenclature=mtx_nomenclature)
@@ -76,7 +54,7 @@ def load_transportation_activity(any_stp_dict):
                                                                                mtx_uom_conversion,
                                                                                dct.old_uom: clmn.distance_uom,
                                                                                dct.new_uom: clmn.distance_si_uom},
-                                                               denominator_dict={}, constant_uom_multiplier=True)
+                                                               denominator_dict={})
     mtx_transportation_activity.apply_uom_conversion_to_column(any_column=clmn.weight,
                                                                numerator_dict={dct.any_mtx_item:
                                                                             Base.BaseDataset.create_empty_dataframe(),
@@ -85,7 +63,7 @@ def load_transportation_activity(any_stp_dict):
                                                                                mtx_uom_conversion,
                                                                                dct.old_uom: clmn.weight_uom,
                                                                                dct.new_uom: clmn.weight_si_uom},
-                                                               denominator_dict={}, constant_uom_multiplier=True)
+                                                               denominator_dict={})
     mtx_transportation_activity.rename_column_list(old_clmn_list=[clmn.distance_uom, clmn.distance_si_uom,
                                                                   clmn.weight_uom, clmn.weight_si_uom],
                                                    new_clmn_list=['input uom', clmn.distance_uom,
@@ -98,8 +76,6 @@ def load_transportation_activity(any_stp_dict):
     mtx_transportation_activity.remove_duplicated_index()
 
     mtx_transportation_activity.write(any_stp_dict, save_dataframe=True, save_error=True)
-    end_time = time.time()
-    print("Processing time: ", end_time - start_time, "seconds.")
     return
 
 
@@ -107,4 +83,3 @@ if __name__ == "__main__":
     pd.set_option('display.max_columns', 50)
     pd.set_option('display.max_rows', 70000)
     load_transportation_activity(any_stp_dict=stp_dct.setup_dict)
-
