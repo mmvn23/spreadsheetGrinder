@@ -10,6 +10,7 @@ import variables.general as var_gen
 import variables.format as var_fmt
 import datetime
 import os
+import xlrd
 
 
 def get_value_from_dataframe(input_dataframe, target_column_list, column_list_to_filter, value_list_to_filter,
@@ -112,17 +113,20 @@ def assign_type(input_value, desired_type, date_parser='%m/%d/%Y'):
 
 # def parse_date_as_timestamp(original_date, date_parser_list):
 def parse_date_as_timestamp(original_date, date_parser_list):
-    successful_parsing = False
+    try:
+        successful_parsing = False
 
-    for any_date_parser in date_parser_list:
-        any_date_parsed, successful_parsing_to_append = parse_date_as_timestamp_per_data_parser(original_date,
-                                                                                                any_date_parser)
+        for any_date_parser in date_parser_list:
+            any_date_parsed, successful_parsing_to_append = parse_date_as_timestamp_per_data_parser(original_date,
+                                                                                                    any_date_parser)
 
-        if successful_parsing_to_append:
-            any_date = any_date_parsed
-        successful_parsing = successful_parsing | successful_parsing_to_append
+            if successful_parsing_to_append:
+                any_date = any_date_parsed
+            successful_parsing = successful_parsing | successful_parsing_to_append
 
-    if not successful_parsing:
+        if not successful_parsing:
+            any_date = pd.NA
+    except TypeError:
         any_date = pd.NA
 
     return any_date
@@ -135,14 +139,38 @@ def parse_date_as_timestamp_per_data_parser(original_date, date_parser):
     try:
         if type(original_date) == str:
             any_date = datetime.datetime.strptime(original_date, date_parser)
+        elif type(original_date) == int and date_parser == var_gen.excel_int_format:
+            any_date = convert_excel_date_to_python_date(original_date)
         else:
             any_date = original_date
         any_date = pd.Timestamp(year=any_date.year, month=any_date.month, day=any_date.day)
         successful_parsing = True
-    except ValueError:
+    except (ValueError, AttributeError) as e:
         pass
 
     return any_date, successful_parsing
+
+
+def convert_excel_date_to_python_date(excel_date):
+    """Converts an Excel date (number) to a Python date object.
+
+    Args:
+    excel_date: The Excel date (number).
+
+    Returns:
+    A Python date object.
+    """
+    xldate_tuple = xlrd.xldate_as_tuple(excel_date, 0)
+    year, month, day = xldate_tuple[0:3]
+    return datetime.date(year, month, day)
+
+
+def get_column_info_of_first_row_as_scalar_for_specific_column(original_df, column_name):
+    df = copy.deepcopy(original_df)
+    """Gets the column information of the first row of a dataframe as a scalar for a specific column."""
+    column_info = df.loc[0, column_name]
+
+    return column_info
 
 
 def convert_timestamp_to_str(mytimestamp, date_parser):

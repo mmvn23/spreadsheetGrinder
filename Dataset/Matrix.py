@@ -118,7 +118,7 @@ class DataMatrix(BaseDataset):
         if save_error:
             self.write_dataframe_as_csv(any_stp_dict=any_stp_dict, save_df_setup_clmn=False, save_df_error=True)
         self.write_dataframe_as_csv(any_stp_dict=any_stp_dict, save_df_setup_clmn=True, save_df_error=False)
-        print('MTX 111 - writing successfully ', self.name)
+
         return
 
     def write_dataframe_as_csv(self, any_stp_dict, save_df_setup_clmn=False, save_df_error=False):
@@ -212,8 +212,14 @@ class DataMatrix(BaseDataset):
             any_raw_dataset_list = BaseDataset.adjust_sheet_on_base_dataset_list(any_raw_dataset_list, sheet_list)
 
         for any_raw_dataset in any_raw_dataset_list:
-            any_raw_dataset.load_dataframe(treat_date)
-            self.dataframe = pd.concat([self.dataframe, any_raw_dataset.dataframe])
+            print('** MTX 215')
+            print(any_raw_dataset.name)
+            try:
+                any_raw_dataset.load_dataframe(treat_date)
+                self.dataframe = pd.concat([self.dataframe, any_raw_dataset.dataframe])
+            except KeyError as e:
+                print(e)
+                print(any_raw_dataset.name, ' not loaded')
 
         # self.consolidate_date()
         if run_auto_etl:
@@ -224,6 +230,27 @@ class DataMatrix(BaseDataset):
             self.assure_column_integrity()
             self.remove_duplicated_index()
 
+        return
+
+    def load_dataframe_from_family_list(self, base_dataset_family_name_list, any_stp_dict,
+                                        any_mtx_nomenclature=var_gen.void, any_mtx_uom_conversion=var_gen.void,
+                                        any_mtx_part_number=var_gen.void, treat_date=True,
+                                        load_all_files_within_folder=True, load_all_sheets_on_spreadsheet=False,
+                                        key_clmn='', run_auto_etl=True):
+
+        for base_dataset_family_name in base_dataset_family_name_list:
+            any_datamatrix = copy.deepcopy(self)
+            print('MTX 240')
+            print('---- ', base_dataset_family_name)
+            any_datamatrix.load_dataframe_from_family(base_dataset_family_name=base_dataset_family_name,
+                                                      any_stp_dict=any_stp_dict,
+                                                      any_mtx_nomenclature=any_mtx_nomenclature,
+                                                      any_mtx_uom_conversion=any_mtx_uom_conversion,
+                                                      treat_date=treat_date,
+                                                      load_all_files_within_folder=load_all_files_within_folder,
+                                                      load_all_sheets_on_spreadsheet=load_all_sheets_on_spreadsheet,
+                                                      run_auto_etl=run_auto_etl)
+            self.concat_datamatrix(any_datamatrix)
         return
 
     def assign_datamatrix_to_empty_header(self, input_datamatrix):
