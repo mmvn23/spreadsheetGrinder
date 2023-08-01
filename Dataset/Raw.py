@@ -316,6 +316,7 @@ class RawDataset(BaseDataset):
 
         if treat_date:
             self.prepare_string_to_mask_date_parsing()
+
         self.handle_nan()
 
         self.apply_types()
@@ -492,6 +493,7 @@ class RawDataset(BaseDataset):
                                                  add_column_list_to_filter=[],
                                                  add_value_list_to_filter=[])
         ii = 0
+
         for any_standard_clmn in standard_column_list:
             self.apply_type_to_column(any_standard_clmn, type_list[ii])
             ii = ii + 1
@@ -622,7 +624,7 @@ class RawDataset(BaseDataset):
 
     def load_dataframe_from_spreadsheet_names(self, input_strategy, transpose):
         if self.format == fmt.csv:
-            print('csv not yet developed')
+            self.load_from_spreadsheet_names_csv(transpose, input_strategy)
         elif self.format == fmt.xlsx:
             self.load_from_spreadsheet_names_excel(transpose, input_strategy)
         else:
@@ -653,6 +655,30 @@ class RawDataset(BaseDataset):
                                            engine='openpyxl', skiprows=self.skip_row_dict[dct.bf_header],
                                            nrows=self.nrows, date_parser=self.date_parser_list, decimal=self.decimal,
                                            header=header)
+            if transpose:
+                # self.dataframe.set_index(1, inplace=True)
+                self.dataframe = self.dataframe.T
+                self.dataframe.columns = self.dataframe.iloc[0]
+                self.dataframe = self.dataframe[1:]
+
+            self.dataframe = self.dataframe[input_column_list]
+            self.dataframe = self.dataframe.rename(columns=rename_dict)
+
+        return
+
+    def load_from_spreadsheet_names_csv(self, transpose, input_strategy):
+        input_column_list, standard_column_list, position_clmn_list, rename_dict = \
+            self.get_input_and_standard_column_lists(input_strategy)
+
+        if len(input_column_list) > 0:
+            if transpose:
+                header = None
+            else:
+                header = 0
+
+            self.dataframe = pd.read_csv(filepath_or_buffer=self.filepath, header=header,
+                                         skiprows=self.skip_row_dict[dct.bf_header], encoding=self.encoding)
+
             if transpose:
                 # self.dataframe.set_index(1, inplace=True)
                 self.dataframe = self.dataframe.T

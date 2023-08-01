@@ -234,10 +234,10 @@ class DataMatrix(BaseDataset):
         return
 
     def merge_datamatrix(self, right_datamatrix, desired_column_list, left_on_list,
-                         right_on_list, multilevel_datamatrix, reset_left_index=False, reset_right_index=False,
+                         right_on_list, multilevel_datamatrix=False, reset_left_index=False, reset_right_index=False,
                          drop_right_on_list=True):
         any_datamatrix = copy.deepcopy(right_datamatrix)
-        any_datamatrix.add_name_to_second_level_column()
+        # any_datamatrix.add_name_to_second_level_column()
         self.merge_dataframe(original_right_dataset=any_datamatrix, desired_column_list=desired_column_list,
                              left_on_list=left_on_list, right_on_list=right_on_list,
                              reset_left_index=reset_left_index, reset_right_index=reset_right_index,

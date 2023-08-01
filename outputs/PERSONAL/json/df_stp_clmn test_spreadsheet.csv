@@ -1,9 +1,0 @@
-Variable name,Input,Input strategy,Multiplier,Standard name,Type,UoM conversion,Nomenclature,String cleaning
-date,Posting Date,Spreadsheet clmn names,1,Date,date,False,False,False
-part_number_code,Material,Spreadsheet clmn names,1,Part number code,str,False,False,True
-location_l0,Plant,Spreadsheet clmn names,1,Location,str,False,True,False
-vendor_code,Vendor,Spreadsheet clmn names,1,Vendor code,str,False,False,True
-uom,Unit of Entry,Spreadsheet clmn names,1,UoM,str,False,True,False
-volume,Qty in unit of entry,Spreadsheet clmn names,1,Volume,float,True,False,False
-po_number,Purchase order,Spreadsheet clmn names,1,Purchase order,str,False,False,True
-po_item,Item,Spreadsheet clmn names,1,PO item,str,False,False,True

@@ -10,6 +10,7 @@ import variables.general as var_gen
 import variables.format as var_fmt
 import datetime
 import os
+import re
 
 
 def get_value_from_dataframe(input_dataframe, target_column_list, column_list_to_filter, value_list_to_filter,
@@ -415,3 +416,11 @@ def intersection_two_lists(list1, list2):
 
     intersection = set1 & set2
     return intersection
+
+
+def search_pattern_on_string(pattern, term, value):
+    term = term.lower()
+    pattern = pattern.lower()
+
+    if re.search(pattern, term):
+        return value

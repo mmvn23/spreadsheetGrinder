@@ -1,0 +1,24 @@
+{
+    "name": "raw_chase",
+    "filepath": "C:/Users/emily/PycharmProjects/spreadsheetGrinder/inputs/Personal/financials/Chase6026_Activity_20230722.csv",
+    "sheet": "Chase6026_Activity_20230722",
+    "timestamp": "07/31/2023",
+    "df setup clmn filepath": "C:/Users/emily/PycharmProjects/spreadsheetGrinder/outputs/PERSONAL/dataframe/setup/raw_chase.csv",
+    "format": "csv",
+    "source dict": {
+        "name": "Chase",
+        "timestamp": "07/29/2023"
+    },
+    "to be transposed": "True",
+    "use cols": "A:I",
+    "nrows": 10000,
+    "date parser": [
+        "%m/%d/%Y"
+    ],
+    "skip row": {
+        "bf header": 0,
+        "af header": 0
+    },
+    "encoding": "ascii",
+    "decimal": "."
+}

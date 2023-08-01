@@ -277,8 +277,26 @@ class BaseDataset:
         self.dataframe = self.dataframe[cond]
         return
 
-    def get_terms_of_a_column(self, any_column):
-        term_list = list(set(self.dataframe[any_column]))
+    def filter_nan_on_column(self, any_column, keep_nan=True):
+        cond_nan = pd.isnull(self.dataframe[any_column])
+
+        if keep_nan:
+            self.dataframe = self.dataframe.loc[cond_nan]
+        else:
+            self.dataframe = self.dataframe.loc[~cond_nan]
+        return
+
+    def get_terms_of_a_column(self, any_column, reset_index=False, remove_repetitive_terms=False):
+        if reset_index:
+            self.remove_index()
+
+        if remove_repetitive_terms:
+            term_list = list(set(self.dataframe[any_column]))
+        else:
+            term_list = list(self.dataframe[any_column])
+
+        if reset_index:
+            self.apply_standard_index()
         return term_list
 
     def split_based_on_column_categories(self, any_column):
@@ -301,6 +319,16 @@ class BaseDataset:
 
         self.dataframe = pd.melt(self.dataframe, id_vars=id_vars, value_vars=value_vars, var_name=var_name,
                                  value_name=value_name, ignore_index=True)
+
+        if reset_index:
+            self.apply_standard_index()
+        return
+
+    def sort_column(self, any_column, ascending=True, reset_index=False):
+        if reset_index:
+            self.remove_index()
+
+        self.dataframe = self.dataframe.sort_values(by=any_column, ascending=ascending)
 
         if reset_index:
             self.apply_standard_index()
@@ -427,6 +455,14 @@ class BaseDataset:
     def is_index_standard(self):
         is_standard = ut.are_lists_equal(self.dataframe.index.names, self.get_var_index_list())
         return is_standard
+
+    def search_string_column_for_pattern(self, target_column, pattern, any_column, value):
+        self.dataframe[any_column] = self.dataframe.apply(lambda row: ut.search_pattern_on_string(pattern=pattern,
+                                                                                          term=row[target_column],
+                                                                                          value=value),
+                                                                 axis=1)
+
+        return
 
     @staticmethod
     def adjust_name_on_basedataset_dataset_list(any_base_dataset_list, term_list,
